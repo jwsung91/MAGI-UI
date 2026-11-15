@@ -69,12 +69,13 @@ Then type `latest` in the viewer and press Enter.
 | reject | red |
 | error | black |
 
-The full resolution (grade, debate round, minority opinion, follow-up proposals) is in the skill's Markdown output; the viewer shows the main proposal.
+The panels show the main proposal. If the result records how each unit voted on follow-up proposals (`follow_ups[].units`), a unit's modal also lists each follow-up with its resolution and that unit's verdict, confidence, and rationale (see `08_follow_ups.json`). Older results without `follow_ups[].units` still load; their follow-ups are simply not shown. The rest of the resolution (grade, debate round, minority opinion) is in the skill's Markdown output.
 
 ## Tested
 
 - Fresh `setup.sh` install at the pinned commit.
 - Every sample through the Dash callbacks, plus modal open/close in headless Chrome.
+- Follow-up votes: `08_follow_ups.json` through the callbacks, and rejection of malformed `follow_ups[].units` (missing unit, unknown verdict, more than two follow-ups).
 - Labels in `en` and `ko`.
 
 ## Notes

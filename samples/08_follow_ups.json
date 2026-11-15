@@ -1,0 +1,91 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Move the team's CI runners to the new build cluster this quarter",
+  "grade": "normal",
+  "preset": "default",
+  "verdict": "rejected",
+  "approve_count": 1,
+  "framing": "framing agent",
+  "minority": "MELCHIOR-1: the new cluster halves build times and the migration script is already tested on two repos.",
+  "follow_ups": [
+    {
+      "agenda": "Run both clusters in parallel for two weeks before switching",
+      "grade": "normal",
+      "verdict": "passed",
+      "approve_count": 3,
+      "units": {
+        "melchior": {
+          "verdict": "approve",
+          "confidence": "high",
+          "rationale": ["Gives real build-time numbers instead of the benchmark"]
+        },
+        "balthasar": {
+          "verdict": "approve",
+          "confidence": "high",
+          "rationale": ["Keeps a working fallback until the new cluster proves stable"]
+        },
+        "casper": {
+          "verdict": "approve",
+          "confidence": "medium",
+          "rationale": ["Lets developers try it without being forced over"]
+        }
+      }
+    },
+    {
+      "agenda": "Retire the old runners at the end of the quarter",
+      "grade": "normal",
+      "verdict": "rejected",
+      "approve_count": 1,
+      "units": {
+        "melchior": {
+          "verdict": "approve",
+          "confidence": "medium",
+          "rationale": ["Running two clusters doubles maintenance"]
+        },
+        "balthasar": {
+          "verdict": "reject",
+          "confidence": "high",
+          "rationale": ["No rollback path if the new cluster fails during release week"]
+        },
+        "casper": {
+          "verdict": "reject",
+          "confidence": "medium",
+          "rationale": ["A fixed date adds pressure before anyone has used the new cluster"]
+        }
+      }
+    }
+  ],
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Benchmarks show builds about twice as fast",
+        "Migration script tested on two repositories"
+      ],
+      "doubted_premise": "The benchmark repositories represent the team's real workload"
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "reject",
+      "confidence": "high",
+      "rationale": [
+        "The quarter ends in release week, the worst time for a CI outage",
+        "No one on call knows the new cluster yet"
+      ],
+      "doubted_premise": "The new cluster's uptime matches the vendor's figure",
+      "recommendations": ["Train the on-call rotation before any switch"]
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "reject",
+      "confidence": "medium",
+      "rationale": [
+        "Developers have not asked for faster builds this quarter"
+      ],
+      "doubted_premise": "Build time is the team's main pain point"
+    }
+  }
+}
