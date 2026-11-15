@@ -42,6 +42,8 @@ TEXT = {
         "high": "high", "medium": "medium", "low": "low",
         "verdict": "[verdict]", "rationale": "[rationale]", "premise": "[doubted premise]",
         "recommend": "[recommendation]", "answer": "[answer]", "confidence": "confidence",
+        "follow_up": "[follow-up {i}]",
+        "passed": "passed", "rejected": "rejected", "on_hold": "on hold", "error": "error",
         "hold_note": "* Skill resolution: on hold (no matching screen label, shown as info)",
         "majority_note": "* Skill resolution: passed by {n}/3 majority (shown as passed even with a rejecting unit)",
         "not_found": "Result file not found: {q}",
@@ -56,6 +58,8 @@ TEXT = {
         "high": "높음", "medium": "중간", "low": "낮음",
         "verdict": "[판정]", "rationale": "[근거]", "premise": "[의심하는 전제]",
         "recommend": "[권고]", "answer": "[답]", "confidence": "확신도",
+        "follow_up": "[후속 {i}]",
+        "passed": "가결", "rejected": "부결", "on_hold": "보류", "error": "오류",
         "hold_note": "※ 결의 기준은 MAGI 스킬: 보류 (대응하는 화면 라벨이 없어 정보로 표시)",
         "majority_note": "※ 결의 기준은 MAGI 스킬: {n}/3 다수결 가결 (거부 패널이 있어도 가결로 표시)",
         "not_found": "결과 파일을 찾을 수 없습니다: {q}",
@@ -128,10 +132,32 @@ def validate(data: dict) -> None:
         for key in UNIT_KEYS:
             if units[key].get("verdict") not in UNIT_VERDICTS:
                 fail(f"units.{key}.verdict must be one of {UNIT_VERDICTS}")
+        validate_follow_ups(data.get("follow_ups"), fail)
     else:
         for key in UNIT_KEYS:
             if not isinstance(units[key].get("answer"), str):
                 fail(f"units.{key}.answer is required in information mode")
+
+
+def validate_follow_ups(follow_ups, fail) -> None:
+    """follow_ups is optional; follow_ups[].units is optional (older results have none)."""
+    if follow_ups is None:
+        return
+    if not isinstance(follow_ups, list) or len(follow_ups) > 2:
+        fail("follow_ups must be a list of at most 2 items")
+    for i, item in enumerate(follow_ups):
+        if not isinstance(item, dict) or not isinstance(item.get("agenda"), str):
+            fail(f"follow_ups[{i}].agenda is required")
+        if item.get("verdict") not in VERDICTS:
+            fail(f"follow_ups[{i}].verdict must be one of {VERDICTS}")
+        units = item.get("units")
+        if units is None:
+            continue
+        if not isinstance(units, dict) or set(units) != set(UNIT_KEYS):
+            fail(f"follow_ups[{i}].units must contain exactly {UNIT_KEYS}")
+        for key in UNIT_KEYS:
+            if not isinstance(units[key], dict) or units[key].get("verdict") not in UNIT_VERDICTS:
+                fail(f"follow_ups[{i}].units.{key}.verdict must be one of {UNIT_VERDICTS}")
 
 
 def unit_key(personality: str) -> str:
@@ -146,7 +172,8 @@ def unit_key(personality: str) -> str:
 # The original CSS (.modal-body) sets no white-space rule, so line breaks collapse.
 # To leave the graphics untouched, the modal text reads well on one line:
 # each item gets a [label], items are separated by ║, values inside an item by ·.
-# The full resolution (debate, minority opinion, follow-ups) is in the skill's Markdown output.
+# Follow-up proposals with per-unit verdicts (follow_ups[].units) are appended to the unit modal.
+# The rest of the resolution (debate, minority opinion) is in the skill's Markdown output.
 
 SECTION = "   ║   "
 ITEM = " · "
@@ -167,6 +194,25 @@ def verdict_note(data: dict) -> str:
     return ""
 
 
+def follow_up_sections(data: dict, key: str) -> list:
+    """One section per follow-up that records this unit's vote: the agenda, the follow-up's
+    resolution, then this unit's verdict, confidence and rationale."""
+    sections = []
+    for i, item in enumerate(data.get("follow_ups") or [], start=1):
+        unit = (item.get("units") or {}).get(key)
+        if not unit:
+            continue
+        count = f" {item['approve_count']}/3" if isinstance(item.get("approve_count"), int) else ""
+        resolution = f"({T.get(item['verdict'], item['verdict'])}{count})"
+        if unit["verdict"] == "error":
+            vote = [T["error"], unit.get("error")]
+        else:
+            conf = f"{T['confidence']} {T.get(unit.get('confidence'), unit.get('confidence'))}" if unit.get("confidence") else ""
+            vote = [T.get(unit["verdict"], unit["verdict"]), conf] + list(unit.get("rationale") or [])
+        sections.append(f"{T['follow_up'].format(i=i)} {item['agenda']} {resolution} → " + _join(vote))
+    return sections
+
+
 def unit_text(data: dict, key: str) -> str:
     """The unit modal shows only that unit's opinion."""
     unit = data["units"][key]
@@ -182,6 +228,7 @@ def unit_text(data: dict, key: str) -> str:
             sections.append(f"{T['premise']} {unit['doubted_premise']}")
         if unit.get("recommendations"):
             sections.append(f"{T['recommend']} " + _join(unit["recommendations"]))
+        sections.extend(follow_up_sections(data, key))
     note = verdict_note(data)
     if note:
         sections.append(note)

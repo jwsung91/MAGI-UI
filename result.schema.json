@@ -27,7 +27,18 @@
           "agenda": { "type": "string" },
           "grade": { "enum": ["normal", "critical"] },
           "verdict": { "enum": ["passed", "rejected", "on_hold", "error"] },
-          "approve_count": { "type": "integer", "minimum": 0, "maximum": 3 }
+          "approve_count": { "type": "integer", "minimum": 0, "maximum": 3 },
+          "units": {
+            "type": "object",
+            "description": "Each unit's verdict on this follow-up proposal",
+            "required": ["melchior", "balthasar", "casper"],
+            "additionalProperties": false,
+            "properties": {
+              "melchior": { "$ref": "#/$defs/follow_up_unit" },
+              "balthasar": { "$ref": "#/$defs/follow_up_unit" },
+              "casper": { "$ref": "#/$defs/follow_up_unit" }
+            }
+          }
         }
       }
     },
@@ -54,6 +65,16 @@
         "doubted_premise": { "type": "string" },
         "recommendations": { "type": "array", "items": { "type": "string" } },
         "answer": { "type": "string", "description": "This unit's answer in information mode" },
+        "error": { "type": "string", "description": "Reason, when verdict is error" }
+      }
+    },
+    "follow_up_unit": {
+      "type": "object",
+      "required": ["verdict"],
+      "properties": {
+        "verdict": { "enum": ["approve", "reject", "error"] },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "rationale": { "type": "array", "items": { "type": "string" }, "maxItems": 3 },
         "error": { "type": "string", "description": "Reason, when verdict is error" }
       }
     }
