@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Sample proposal to show a unit error",
+  "grade": "normal",
+  "preset": "default",
+  "verdict": "error",
+  "framing": "framing agent",
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "sample"
+      ]
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "error",
+      "error": "Unit output broke format and failed again after one retry"
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "sample"
+      ]
+    }
+  }
+}

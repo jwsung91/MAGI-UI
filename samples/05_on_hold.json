@@ -1,0 +1,41 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Migrate the production database schema this week",
+  "grade": "critical",
+  "preset": "default",
+  "verdict": "on_hold",
+  "approve_count": 2,
+  "framing": "framing agent",
+  "debate": "One round; no unit changed position.",
+  "minority": "BALTHASAR-2: no rollback rehearsal has been done.",
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Migration script passed on staging"
+      ]
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "reject",
+      "confidence": "high",
+      "rationale": [
+        "No rollback rehearsal"
+      ]
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Worth it if done at a low-traffic hour"
+      ],
+      "recommendations": [
+        "Run it at the lowest-traffic hour"
+      ]
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/jwsung91/MAGI/skills/magi/result.schema.json",
+  "title": "MAGI deliberation result",
+  "description": "One MAGI deliberation as JSON. Enum values are always English; free text is written in the output language.",
+  "type": "object",
+  "required": ["version", "mode", "agenda", "units"],
+  "properties": {
+    "version": { "const": 2 },
+    "mode": { "enum": ["deliberation", "information"] },
+    "agenda": { "type": "string", "minLength": 1, "description": "Main proposal (the question in information mode)" },
+    "grade": { "enum": ["normal", "critical"], "description": "Required in deliberation mode" },
+    "grade_raised": { "type": "boolean", "description": "Raised to critical by a grade objection" },
+    "preset": { "type": "string" },
+    "verdict": { "enum": ["passed", "rejected", "on_hold", "error"], "description": "Required in deliberation mode" },
+    "approve_count": { "type": "integer", "minimum": 0, "maximum": 3 },
+    "debate": { "type": "string", "description": "Debate round record, if one was held" },
+    "minority": { "type": "string", "description": "Minority opinion" },
+    "framing": { "type": "string", "description": "framing agent / moderator directly" },
+    "follow_ups": {
+      "type": "array",
+      "maxItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["agenda", "verdict"],
+        "properties": {
+          "agenda": { "type": "string" },
+          "grade": { "enum": ["normal", "critical"] },
+          "verdict": { "enum": ["passed", "rejected", "on_hold", "error"] },
+          "approve_count": { "type": "integer", "minimum": 0, "maximum": 3 }
+        }
+      }
+    },
+    "units": {
+      "type": "object",
+      "required": ["melchior", "balthasar", "casper"],
+      "additionalProperties": false,
+      "properties": {
+        "melchior": { "$ref": "#/$defs/unit" },
+        "balthasar": { "$ref": "#/$defs/unit" },
+        "casper": { "$ref": "#/$defs/unit" }
+      }
+    }
+  },
+  "$defs": {
+    "unit": {
+      "type": "object",
+      "properties": {
+        "perspective": { "type": "string" },
+        "verdict": { "enum": ["approve", "reject", "error"], "description": "Required in deliberation mode (main proposal)" },
+        "confidence": { "enum": ["high", "medium", "low"] },
+        "rationale": { "type": "array", "items": { "type": "string" }, "maxItems": 3 },
+        "flip_condition": { "type": "string" },
+        "doubted_premise": { "type": "string" },
+        "recommendations": { "type": "array", "items": { "type": "string" } },
+        "answer": { "type": "string", "description": "This unit's answer in information mode" },
+        "error": { "type": "string", "description": "Reason, when verdict is error" }
+      }
+    }
+  }
+}

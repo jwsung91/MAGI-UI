@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Add a JSON export option to the CLI",
+  "grade": "normal",
+  "preset": "default",
+  "verdict": "passed",
+  "approve_count": 3,
+  "framing": "framing agent",
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "approve",
+      "confidence": "high",
+      "rationale": [
+        "Output already comes from one structure",
+        "Schema keeps it stable"
+      ]
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "approve",
+      "confidence": "high",
+      "rationale": [
+        "Opt-in, nothing changes by default"
+      ]
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Users asked for machine-readable output"
+      ]
+    }
+  }
+}

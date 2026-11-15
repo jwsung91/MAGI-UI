@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Rewrite the stable backend in a new language this quarter",
+  "grade": "critical",
+  "preset": "default",
+  "verdict": "rejected",
+  "approve_count": 0,
+  "framing": "framing agent",
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "reject",
+      "confidence": "high",
+      "rationale": [
+        "No measured bottleneck the rewrite would fix"
+      ]
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "reject",
+      "confidence": "high",
+      "rationale": [
+        "Large regression risk, no rollback plan"
+      ]
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "reject",
+      "confidence": "medium",
+      "rationale": [
+        "Team would pause feature work for months"
+      ]
+    }
+  }
+}

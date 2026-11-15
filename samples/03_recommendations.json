@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Replace the office printer with the model the team shortlisted",
+  "grade": "normal",
+  "preset": "default",
+  "verdict": "passed",
+  "approve_count": 3,
+  "framing": "framing agent",
+  "follow_ups": [
+    {
+      "agenda": "Sell the old printer second-hand",
+      "grade": "normal",
+      "verdict": "rejected",
+      "approve_count": 1
+    }
+  ],
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Supports the duplex scanning the team needs",
+        "Drivers available for all office OSes"
+      ],
+      "doubted_premise": "Toner cost per page matches the spec sheet",
+      "recommendations": [
+        "Print a test batch during the return window"
+      ]
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Old printer stays as a fallback for a month"
+      ],
+      "recommendations": [
+        "Keep the old printer until the new one passes a month of use"
+      ]
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "approve",
+      "confidence": "high",
+      "rationale": [
+        "Everyone on the team voted for it"
+      ]
+    }
+  }
+}

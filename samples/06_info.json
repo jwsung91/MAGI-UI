@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "mode": "information",
+  "agenda": "How does triple modular redundancy differ from dual redundancy?",
+  "preset": "default",
+  "framing": "framing agent",
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "answer": "Dual redundancy detects a fault but cannot tell which side is right. TMR outvotes the faulty channel and keeps running."
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "answer": "If stopping is the safe state, dual redundancy is often enough."
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "answer": "Whether the service must never stop decides the choice."
+    }
+  }
+}

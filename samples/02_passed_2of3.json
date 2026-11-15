@@ -1,0 +1,37 @@
+{
+  "version": 2,
+  "mode": "deliberation",
+  "agenda": "Run the meeting-notes cleanup script as a weekly batch job",
+  "grade": "normal",
+  "preset": "default",
+  "verdict": "passed",
+  "approve_count": 2,
+  "framing": "framing agent",
+  "minority": "BALTHASAR-2: with no failure alert, a broken run would go unnoticed for a week.",
+  "units": {
+    "melchior": {
+      "perspective": "Technical feasibility",
+      "verdict": "approve",
+      "confidence": "high",
+      "rationale": [
+        "Input format is consistent, easy to automate"
+      ]
+    },
+    "balthasar": {
+      "perspective": "Safety and sustainability",
+      "verdict": "reject",
+      "confidence": "medium",
+      "rationale": [
+        "No failure alert path"
+      ]
+    },
+    "casper": {
+      "perspective": "Needs and value",
+      "verdict": "approve",
+      "confidence": "medium",
+      "rationale": [
+        "Saves repetitive manual work"
+      ]
+    }
+  }
+}
