@@ -13,6 +13,7 @@ Result format: version 2 of the MAGI skill's result.schema.json
 
 import json
 import os
+import time
 from pathlib import Path
 
 RESULTS_DIR = Path(os.getenv("MAGI_RESULTS_DIR", "results"))
@@ -269,6 +270,45 @@ def get_verdict(question: str) -> str:
     if data["mode"] == "information":
         return "info"
     return VERDICT_TO_STATUS[data["verdict"]]
+
+
+# The status block at the top left (main.py.patch loads components/magi_status.js).
+# FILE:MAGI_SYS and EX_MODE:OFF stay fixed on screen; these three follow the result.
+PRESET_CODES = (
+    (("code review", "코드 리뷰", "코드리뷰"), "CODE_REVIEW"),
+    (("personal", "개인"), "PERSONAL"),
+    (("ethic", "윤리"), "ETHICS"),
+    (("original", "원작", "오리지널"), "ORIGINAL"),
+    (("custom", "커스텀", "맞춤", "사용자"), "CUSTOM"),
+    (("default", "기본"), "DEFAULT"),
+)
+
+
+def preset_code(preset) -> str:
+    """'DEFAULT', 'ETHICS', ... from the result's free-text preset ("default — reason", "기본 — ...")."""
+    head = str(preset or "").strip().lower()
+    head = head.split("—")[0].split(" - ")[0].split(":")[0].split("(")[0]
+    for words, code in PRESET_CODES:
+        if any(head.startswith(w) or f" {w}" in head for w in words):
+            return code
+    return "CUSTOM" if head else "----"
+
+
+def status_fields(question: str) -> dict:
+    """CODE: the time in the result file name (YYYYMMDD-HHMMSS-...), else the file's modified time.
+    EXTENTION: the preset. PRIORITY: AAA for a critical proposal, A for a normal one, ---- otherwise."""
+    try:
+        data = load_result(question)
+    except ResultError:
+        return {"code": "????", "extention": "????", "priority": "????"}
+    name = data["_source"]
+    parts = name.split("-")
+    if len(parts) >= 2 and parts[1][:4].isdigit():
+        code = parts[1][:4]
+    else:
+        code = time.strftime("%H%M", time.localtime(resolve_path(question).stat().st_mtime))
+    priority = {"critical": "AAA", "normal": "A"}.get(data.get("grade"), "----")
+    return {"code": code, "extention": preset_code(data.get("preset")), "priority": priority}
 
 
 def display_query(question: str) -> str:

@@ -1,7 +1,16 @@
 diff --git a/main.py b/main.py
-index 2e5d350..a78f004 100644
+index 2e5d350..7516252 100644
 --- a/main.py
 +++ b/main.py
+@@ -12,7 +12,7 @@ WiseMan = load_react_component(app, 'components', 'wise_man.js')
+ Response = load_react_component(app, 'components', 'response.js')
+ Modal = load_react_component(app, 'components', 'modal.js')
+ Header = load_react_component(app, 'components', 'header.js')
+-Status = load_react_component(app, 'components', 'status.js')
++Status = load_react_component(app, 'components', 'magi_status.js')  # [MAGI-UI] status lines from the result
+ 
+ app.layout = Div(
+     className='system',
 @@ -39,8 +39,6 @@ app.layout = Div(
              Response(id='response', status='info')
          ]),
@@ -39,7 +48,29 @@ index 2e5d350..a78f004 100644
  
          return {
              'id': question['id'],
-@@ -103,24 +101,24 @@ def extention(question: dict, annotated_question: dict):
+@@ -89,38 +87,42 @@ def annotated_question(question: dict, key: str):
+ 
+ 
+ @callback(
++    Output('status', 'code'),
+     Output('status', 'extention'),
++    Output('status', 'priority'),
+     Input('question', 'data'),
+-    Input('annotated-question', 'data'))
++    Input('annotated-question', 'data'),
++    prevent_initial_call=True)
+ def extention(question: dict, annotated_question: dict):
++    # [MAGI-UI] CODE: the result's time, EXTENTION: the preset, PRIORITY: the grade.
+     if question['id'] != annotated_question['id']:
+-        return '????'
+-
+-    return '7312' if annotated_question['is_yes_or_no_question'] else '3023'
++        return '????', '????', '????'
++    fields = ai.status_fields(question['query'])
++    return fields['code'], fields['extention'], fields['priority']
+ 
+ 
+ @callback(
      Output({'type': 'wise-man', 'name': MATCH}, 'answer'),
      Input('annotated-question', 'data'),
      State({'type': 'wise-man', 'name': MATCH}, 'personality'),
@@ -71,7 +102,7 @@ index 2e5d350..a78f004 100644
  
  
  @callback(
-@@ -146,6 +144,13 @@ def response_status(answers: list):
+@@ -146,6 +148,13 @@ def response_status(answers: list):
      answer_id = min([answer['id'] for answer in answers])
      status = 'info'
  
@@ -85,7 +116,7 @@ index 2e5d350..a78f004 100644
      if any([answer['status'] == 'error' for answer in answers]):
          status = 'error'
      elif any([answer['status'] == 'no' for answer in answers]):
-@@ -172,8 +177,16 @@ def modal_visibility():
+@@ -172,8 +181,16 @@ def modal_visibility():
      Input('question', 'data'),
      Input({'type': 'wise-man', 'name': MATCH}, 'answer'))
  def modal_content(question: dict, answer: dict):

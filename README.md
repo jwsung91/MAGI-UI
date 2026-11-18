@@ -12,13 +12,14 @@ TomaszRewak/MAGI is a Dash app whose `ai.py` asks OpenAI. MAGI-UI keeps the orig
 |---|---|
 | `ai.py` | Drop-in replacement with the same function names. Reads a MAGI result JSON instead of calling OpenAI. |
 | `main.py.patch` | Small callback patch: reload on every Enter, use the skill's resolution for the result panel, show the proposal text in the modal, bind to `127.0.0.1` with debug off, and drop upstream's **access code** field (its OpenAI key box, unused here). |
-| `assets/magi-ui.css`, `assets/fonts/` | The kanji labels (質問, 解決, 情報, 合意, 拒絶, 誤差) in a serif face. The font holds only those characters, cut from Noto Serif JP (SIL Open Font License), so it looks the same on every machine and needs no network. |
+| `assets/magi-ui.css`, `assets/fonts/` | The kanji labels (質問, 解決, 情報, 合意, 拒絶, 誤差) in a serif face, stretched 1.3× instead of upstream's 2×. The font holds only those characters, cut from Noto Serif JP (SIL Open Font License), so it looks the same on every machine and needs no network. |
+| `components/magi_status.js` | The status lines at the top left, filled from the result (see below). Replaces upstream's `status.js` in the layout; that file itself is not changed. |
 | `setup.sh` | Fetches upstream at a pinned commit, applies the changes above, creates a virtualenv, copies samples. |
 | `requirements.lock` | Tested dependency versions (Python 3.13, dash 2.18.2). |
 | `samples/` | Result files for every outcome. |
 | `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json). |
 
-The upstream graphics (`components/*.js`, `assets/style.css`) are not modified; `assets/magi-ui.css` only overrides the font of the kanji labels, and the layout differs only by the missing access code field.
+The upstream graphics (`components/*.js`, `assets/style.css`) are not modified; `assets/magi-ui.css` only overrides the font and stretch of the kanji labels, `magi_status.js` keeps upstream's status lines and class names, and the layout differs only by the missing access code field.
 
 ## Install and run
 
@@ -61,6 +62,16 @@ Then type `latest` in the viewer and press Enter.
 | on hold | info (no matching label; the modal says it is on hold). Only results of skill versions before 1.6.0; from 1.6.0 a critical split is rejected |
 | error | error (unit error, malformed JSON, or invalid values) |
 | information mode | info |
+
+| Status line | Shows |
+|---|---|
+| `CODE` | the time in the result file name (`YYYYMMDD-HHMMSS-…` gives `HHMM`), else the file's modified time |
+| `FILE` | `MAGI_SYS`, fixed |
+| `EXTENTION` | the preset: `DEFAULT`, `ETHICS`, `CODE_REVIEW`, `PERSONAL`, `ORIGINAL`, `CUSTOM` |
+| `EX_MODE` | `OFF`, fixed |
+| `PRIORITY` | the grade: `AAA` critical, `A` normal, `----` information mode |
+
+Before the first query the lines show upstream's values (`CODE:473`, `EXTENTION:????`, `PRIORITY:AAA`).
 
 | Unit verdict | Unit panel |
 |---|---|
