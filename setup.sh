@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Installs MAGI-UI: fetches TomaszRewak/MAGI at a pinned commit, swaps in ai.py,
 # applies main.py.patch, adds assets/magi-ui.css with its font and
-# components/magi_status.js, creates a virtualenv, and copies the sample results.
+# components/magi_status.js and magi_response.js, creates a virtualenv, and
+# copies the sample results.
 # The upstream graphics (components/*.js, assets/style.css) are not modified.
 set -euo pipefail
 
@@ -22,7 +23,7 @@ git -C "$TARGET" checkout -q "$UPSTREAM_SHA"
 cp "$HERE/ai.py" "$TARGET/ai.py"
 git -C "$TARGET" apply "$HERE/main.py.patch"
 cp -r "$HERE/assets/." "$TARGET/assets/"   # serif kanji: magi-ui.css, fonts/
-cp "$HERE/components/magi_status.js" "$TARGET/components/"   # status lines from the result
+cp "$HERE/components/magi_status.js" "$HERE/components/magi_response.js" "$TARGET/components/"   # status lines, result panel labels
 
 python3 -m venv "$TARGET/.venv"
 "$TARGET/.venv/bin/pip" install -q -r "$HERE/requirements.lock"

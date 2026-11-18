@@ -12,14 +12,15 @@ TomaszRewak/MAGI is a Dash app whose `ai.py` asks OpenAI. MAGI-UI keeps the orig
 |---|---|
 | `ai.py` | Drop-in replacement with the same function names. Reads a MAGI result JSON instead of calling OpenAI. |
 | `main.py.patch` | Small callback patch: reload on every Enter, use the skill's resolution for the result panel, show the proposal text in the modal, bind to `127.0.0.1` with debug off, and drop upstream's **access code** field (its OpenAI key box, unused here). |
-| `assets/magi-ui.css`, `assets/fonts/` | The kanji labels (質問, 解決, 情報, 合意, 拒絶, 誤差) in a serif face, stretched 1.3× instead of upstream's 2×. The font holds only those characters, cut from Noto Serif JP (SIL Open Font License), so it looks the same on every machine and needs no network. |
+| `assets/magi-ui.css`, `assets/fonts/` | The kanji labels in a serif face, stretched 1.3× instead of upstream's 2×. The font holds only those characters, cut from Noto Serif JP (SIL Open Font License), so it looks the same on every machine and needs no network. |
 | `components/magi_status.js` | The status lines at the top left, filled from the result (see below). Replaces upstream's `status.js` in the layout; that file itself is not changed. |
+| `components/magi_response.js` | The result panel with labels that match the skill's resolution (see below). Replaces upstream's `response.js` in the layout; same colors and behaviour. |
 | `setup.sh` | Fetches upstream at a pinned commit, applies the changes above, creates a virtualenv, copies samples. |
 | `requirements.lock` | Tested dependency versions (Python 3.13, dash 2.18.2). |
 | `samples/` | Result files for every outcome. |
 | `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json). |
 
-The upstream graphics (`components/*.js`, `assets/style.css`) are not modified; `assets/magi-ui.css` only overrides the font and stretch of the kanji labels, `magi_status.js` keeps upstream's status lines and class names, and the layout differs only by the missing access code field.
+The upstream graphics (`components/*.js`, `assets/style.css`) are not modified; `assets/magi-ui.css` only overrides the font and stretch of the kanji labels, `magi_status.js` and `magi_response.js` keep upstream's class names and colors, the headers read 議題 / 決議 (agenda / resolution) instead of 質問 / 解決, and the layout differs only by the missing access code field.
 
 ## Install and run
 
@@ -54,6 +55,8 @@ claude
 Then type `latest` in the viewer and press Enter.
 
 ## Mapping
+
+The result panel reads 可決 (passed), 否決 (rejected), 情報 (information), 異常 (error) instead of upstream's 合意, 拒絶, 情報, 誤差: a 2/3 pass is not an agreement, and a failed unit is not a margin of error.
 
 | Skill resolution | Result panel |
 |---|---|

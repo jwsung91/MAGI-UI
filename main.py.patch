@@ -1,9 +1,13 @@
 diff --git a/main.py b/main.py
-index 2e5d350..7516252 100644
+index 2e5d350..f915d28 100644
 --- a/main.py
 +++ b/main.py
-@@ -12,7 +12,7 @@ WiseMan = load_react_component(app, 'components', 'wise_man.js')
- Response = load_react_component(app, 'components', 'response.js')
+@@ -9,17 +9,17 @@ app = Dash(__name__)
+ 
+ Magi = load_react_component(app, 'components', 'magi.js')
+ WiseMan = load_react_component(app, 'components', 'wise_man.js')
+-Response = load_react_component(app, 'components', 'response.js')
++Response = load_react_component(app, 'components', 'magi_response.js')  # [MAGI-UI] 可決 / 否決 / 異常
  Modal = load_react_component(app, 'components', 'modal.js')
  Header = load_react_component(app, 'components', 'header.js')
 -Status = load_react_component(app, 'components', 'status.js')
@@ -11,6 +15,15 @@ index 2e5d350..7516252 100644
  
  app.layout = Div(
      className='system',
+     children=[
+         Magi(id='magi', children=[
+-            Header(side='left', title='質 問'),
+-            Header(side='right', title='解 決'),
++            Header(side='left', title='議 題'),  # [MAGI-UI] agenda
++            Header(side='right', title='決 議'),  # [MAGI-UI] resolution
+             Status(id='status'),
+             WiseMan(
+                 id={'type': 'wise-man', 'name': 'melchior'},
 @@ -39,8 +39,6 @@ app.layout = Div(
              Response(id='response', status='info')
          ]),
