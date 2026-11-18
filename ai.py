@@ -46,6 +46,7 @@ TEXT = {
         "passed": "passed", "rejected": "rejected", "on_hold": "on hold", "error": "error",
         "hold_note": "* Skill resolution: on hold (no matching screen label, shown as info)",
         "majority_note": "* Skill resolution: passed by {n}/3 majority (shown as passed even with a rejecting unit)",
+        "unanimity_note": "* Skill resolution: rejected with {n}/3 approvals; a critical proposal needs all three (shown as rejected even with approving units)",
         "not_found": "Result file not found: {q}",
         "empty_dir": "No result files (*.json) in {d}",
         "json_error": "JSON error ({f}): {e}",
@@ -62,6 +63,7 @@ TEXT = {
         "passed": "가결", "rejected": "부결", "on_hold": "보류", "error": "오류",
         "hold_note": "※ 결의 기준은 MAGI 스킬: 보류 (대응하는 화면 라벨이 없어 정보로 표시)",
         "majority_note": "※ 결의 기준은 MAGI 스킬: {n}/3 다수결 가결 (거부 패널이 있어도 가결로 표시)",
+        "unanimity_note": "※ 결의 기준은 MAGI 스킬: 중대 등급은 셋 모두 승인해야 하므로 {n}/3 승인으로 부결 (승인 패널이 있어도 부결로 표시)",
         "not_found": "결과 파일을 찾을 수 없습니다: {q}",
         "empty_dir": "{d} 에 결과 파일(*.json)이 없습니다.",
         "json_error": "JSON 형식 오류({f}): {e}",
@@ -184,13 +186,17 @@ def _join(items):
 
 
 def verdict_note(data: dict) -> str:
-    """A one-line note, only for the two cases the screen label alone would misrepresent."""
+    """A one-line note, only for the cases the screen label alone would misrepresent."""
     if data["mode"] != "deliberation":
         return ""
     if data["verdict"] == "on_hold":
+        # Results of skill versions before 1.6.0, where a critical split could end on hold.
         return T["hold_note"]
     if data["verdict"] == "passed" and data.get("approve_count", 3) < 3:
         return T["majority_note"].format(n=data["approve_count"])
+    if data["verdict"] == "rejected" and data.get("grade") == "critical" and data.get("approve_count", 0) in (1, 2):
+        # From skill 1.6.0 a critical proposal without three approvals is rejected, with no debate round.
+        return T["unanimity_note"].format(n=data["approve_count"])
     return ""
 
 
