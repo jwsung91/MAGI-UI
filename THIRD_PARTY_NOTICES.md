@@ -1,36 +1,9 @@
 # Third-party notices
 
-## TomaszRewak/MAGI
-
-`setup.sh` downloads [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI) at commit `98a4d0184b1b0013e2216689c770127b6aff2efc`. `ai.py` replaces its `ai.py`, and `main.py.patch` modifies its `main.py`; the patch contains short excerpts of that file as context lines. That project is distributed under the following license:
-
-```
-MIT License
-
-Copyright (c) 2023 Tomasz Rewak
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-Its screen design recreates the MAGI screen from *Neon Genesis Evangelion*. The MIT license above covers that project's code; it does not grant any rights in the original series or its designs.
-
 ## Noto Serif JP
 
-`assets/fonts/magi-kanji-serif.woff2` is a subset of [Noto Serif JP](https://github.com/notofonts/noto-cjk) (Copyright 2012 Google Inc.), instanced at weight 800 and cut to the eleven kanji the screen shows (議題決可否情報状態異常), renamed "MAGI Kanji Serif". It is distributed under the SIL Open Font License, Version 1.1; the full text is in `assets/fonts/OFL.txt`.
+`fonts/magi-kanji-serif.woff2`, embedded in `magi-ui.html` as base64, is a subset of [Noto Serif JP](https://github.com/notofonts/noto-cjk) (Copyright 2012 Google Inc.), instanced at weight 800 and cut to the eleven kanji the screen shows (議題決可否情報状態異常), renamed "MAGI Kanji Serif". It is distributed under the SIL Open Font License, Version 1.1; the full text is in `fonts/OFL.txt`.
 
+## Earlier versions
+
+Before the single-file viewer, MAGI-UI installed [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI) (MIT License) at a pinned commit and replaced its data source. No code or graphics from that project remain in this repository; its history is in the git log.
