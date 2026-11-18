@@ -1,20 +1,20 @@
 # MAGI-UI
 
-A viewer for results of the [MAGI skill](https://github.com/jwsung91/MAGI): one HTML file, opened in a browser. No server, no install, no network.
+A viewer for results of the [MAGI skill](https://github.com/jwsung91/MAGI) on the screen of [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI): one HTML file, opened in a browser. No server, no install, no network.
 
-> **Unofficial.** The look is inspired by the MAGI of *Neon Genesis Evangelion*; this project is not affiliated with the series or its rights holders. Layout and code are original to this repository. If a rights holder asks, it will be taken down.
+> **Unofficial.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. The screen is TomaszRewak/MAGI's fan recreation (MIT License): its stylesheet is included unchanged and its layout is followed; the data source, labels and the rest of the code are this repository's. If a rights holder asks, it will be taken down.
 
-| 2/3 pass, normal proposal (Korean result) | Critical proposal rejected at 2/3 |
+| Critical proposal rejected at 2/3 | A unit's opinion (Korean result) |
 |---|---|
-| ![A 2/3 pass: BALTHASAR-2 and MELCHIOR-1 green, CASPER-3 red, resolution 可決](docs/screenshot-passed.png) | ![A critical proposal rejected at 2/3: BALTHASAR-2 red, the others green, resolution 否決](docs/screenshot-rejected-critical.png) |
+| ![A critical proposal rejected at 2/3: BALTHASAR-2 red, the others green, result 否決](docs/screenshot-rejected-critical.png) | ![The BALTHASAR-2 window over the screen: agenda, resolution, rationale, follow-ups](docs/screenshot-modal.png) |
 
-Left: a real result of the skill (1.6.0, the Korean chatbot fixture) with CASPER-3 selected. Right: `samples/09_rejected_critical_2of3.json` with BALTHASAR-2 selected.
+Left: `samples/09_rejected_critical_2of3.json`. Right: a real result of the skill (1.6.0, the Korean chatbot fixture, passed 2/3) with BALTHASAR-2 clicked.
 
 ## Use
 
 1. Open `magi-ui.html` in a browser (Chrome, Edge, Firefox, Safari).
 2. Click **results folder** and choose the folder the skill writes to, or **result files**, or drop result files on the page. The newest result opens; the list at the bottom switches between them.
-3. Click a unit to see its verdict, confidence, rationale, what would flip it, doubted premise, recommendations, and its votes on follow-up proposals.
+3. Click a unit panel: a window shows the agenda, the resolution, and that unit's verdict, confidence, rationale, what would flip it, doubted premise, recommendations, votes on follow-up proposals, and the minority opinion.
 
 Labels follow the browser language (English or Korean); add `?lang=ko` or `?lang=en` to the address to choose. Files are read in the browser with the File API and go nowhere. To see a result written after you chose the folder, choose the folder again.
 
@@ -32,12 +32,16 @@ Then choose `~/magi-results` as the results folder.
 
 ## What the screen shows
 
-| Part | Shows |
-|---|---|
-| 議題 (agenda) | The main proposal, and the status lines below it |
-| 決議 (resolution) | The resolution, the approval count and the grade, and a note where the label alone could mislead |
-| Unit panels | Each unit's verdict: green approve, red reject, gray error; blue in information mode |
-| Details | The selected unit's opinion, and the minority opinion |
+The layout is TomaszRewak/MAGI's. What changed:
+
+| Part | Upstream | Here |
+|---|---|---|
+| Headers | 質問 / 解決 (question / answer) | 議題 / 決議 (agenda / resolution), in a serif face, stretched 1.3x instead of 2x |
+| Result box | 合意 / 拒絶 / 情報 / 状態 / 誤差 | 可決 / 否決 / 情報 / 異常 (below) |
+| Unit panels | Colored by an OpenAI answer | Colored by each unit's verdict: green approve, red reject, black error; blue in information mode |
+| Status lines | Fixed, but EXTENTION | Filled from the result (below) |
+| Window on click | The raw answer | The agenda, the resolution with a note where the label alone could mislead, and the unit's opinion |
+| Input row | Access code and question | Results folder, result files, and the list of results |
 
 | Resolution | Label | Note |
 |---|---|---|
@@ -63,7 +67,7 @@ A file that is not valid JSON, or that breaks the core rules of the result forma
 
 | File | What it is |
 |---|---|
-| `magi-ui.html` | The viewer. HTML, CSS and JavaScript in one file, with the kanji font embedded |
+| `magi-ui.html` | The viewer. HTML, CSS and JavaScript in one file, with TomaszRewak/MAGI's stylesheet and the kanji font embedded |
 | `samples/` | Result files for every outcome, including `99_invalid.json` to show the error display |
 | `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json) |
 | `fonts/` | The kanji font embedded in the viewer: 議題決可否情報状態異常 cut from Noto Serif JP, and its license |
@@ -73,4 +77,4 @@ The kanji labels are drawn with that font so they look the same on every machine
 
 ## License
 
-MIT for the code in this repository ([LICENSE](LICENSE)). The embedded font is under the SIL Open Font License; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MIT for the code in this repository ([LICENSE](LICENSE)). The embedded stylesheet of TomaszRewak/MAGI is under its MIT License, and the embedded font under the SIL Open Font License; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

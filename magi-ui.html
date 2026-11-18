@@ -7,11 +7,305 @@
 <!--
   MAGI-UI: a single-file viewer for results of the MAGI skill (result format version 2).
   Open this file in a browser, then choose a results folder or drop result files on the page.
-  Nothing is sent anywhere: files are read locally with the File API.
-  The kanji labels use "MAGI Kanji Serif", a subset of Noto Serif JP (SIL Open Font License,
-  see fonts/OFL.txt), embedded below as base64 (source: fonts/magi-kanji-serif.woff2).
+  Files are read locally with the File API; nothing is sent anywhere.
+
+  The screen is the one of TomaszRewak/MAGI (https://github.com/TomaszRewak/MAGI, MIT License,
+  Copyright (c) 2023 Tomasz Rewak): its style.css is included unchanged in the first <style>
+  block below, and the markup follows its React components. See THIRD_PARTY_NOTICES.md.
+  The kanji use "MAGI Kanji Serif", a subset of Noto Serif JP (SIL Open Font License,
+  fonts/OFL.txt), embedded as base64 (source: fonts/magi-kanji-serif.woff2).
 -->
 <style>
+/* ---- TomaszRewak/MAGI assets/style.css, unchanged (MIT License, Copyright (c) 2023 Tomasz Rewak) ---- */
+html {
+    background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 20px, #140b02 20px, #140b02 40px);
+    min-height: 100vh;
+}
+
+body {
+    margin: 15px;
+}
+
+.system {
+    background: black;
+    border: 2px solid #ff8d00;
+    padding: 15px;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: 0 auto;
+}
+
+.magi {
+    display: grid;
+    grid-template-columns:
+        /**/
+        [left-header-start]
+        /**/
+        20px
+        /**/
+        [casper-start status]
+        /**/
+        2fr
+        /**/
+        [left-header-end balthasar-start casper-balthasar-connection]
+        /**/
+        0.5fr
+        /**/
+        [casper-end title casper-melchior-connection]
+        /**/
+        1fr
+        /**/
+        [balthasar-melchior-connection melchior-start]
+        /**/
+        0.5fr
+        /**/
+        [right-header-start balthasar-end response]
+        /**/
+        2fr
+        /**/
+        [melchior-end]
+        /**/
+        20px
+        /**/
+        [right-header-end];
+    grid-template-rows:
+        /**/
+        20px
+        /**/
+        [header balthasar-start]
+        /**/
+        2fr
+        /**/
+        [status response]
+        /**/
+        2fr
+        /**/
+        [casper-start melchior-start casper-balthasar-connection balthasar-melchior-connection]
+        /**/
+        1fr
+        /**/
+        [balthasar-end title casper-melchior-connection]
+        /**/
+        3fr
+        /**/
+        [casper-end melchior-end]
+        /**/
+        20px;
+    aspect-ratio: 2 / 1;
+    container-type: size;
+    border: 2px solid #ff8d00;
+}
+
+.magi>.title {
+    grid-area: title / title;
+    color: #ff8d00;
+    text-align: center;
+    font-size: 9cqh;
+    font-weight: bold;
+}
+
+.magi>.header {
+    overflow: hidden;
+}
+
+.magi>.header>hr {
+    border: 2px solid #277547;
+    height: 4px;
+    margin: 2px;
+}
+
+.magi>.header>span {
+    color: #ff8d00;
+    font-size: 10cqh;
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+    transform: scaleX(2);
+}
+
+.magi>.header.left {
+    grid-area: header / left-header-start / auto / left-header-end;
+}
+
+.magi>.header.right {
+    grid-area: header / right-header-start / auto / right-header-end;
+}
+
+.magi>.system-status {
+    grid-area: status;
+    font-family: 'Helvetica';
+    font-family: 'Lucida Console';
+    color: #ff8d00;
+}
+
+.magi>.system-status>div {
+    font-size: 3cqh;
+    margin-left: 4cqw;
+    transform: scaleX(1.2);
+    transform-origin: left;
+}
+
+.magi>.system-status>div:first-child {
+    font-size: 6cqh;
+    margin-left: 0;
+}
+
+.magi>.response {
+    grid-area: response;
+    justify-self: flex-end;
+    align-self: center;
+    border: solid 2px;
+    padding: 2px;
+}
+
+.magi>.response>.inner {
+    white-space: nowrap;
+    border: solid 2px;
+    padding: 2px 10px;
+    font-size: 8cqh;
+    font-weight: bold;
+}
+
+.magi>.wise-man {
+    display: flex;
+    background: #ff8d00;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.magi>.wise-man>.inner {
+    width: 100%;
+    height: 100%;
+    font-family: Helvetica;
+    font-size: 8cqh;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.magi>.wise-man.melchior {
+    grid-area: melchior-start / melchior-start / melchior-end / melchior-end;
+}
+
+.magi>.wise-man.melchior,
+.magi>.wise-man.melchior>.inner {
+    clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%, 0 44%)
+}
+
+.magi>.wise-man.balthasar {
+    grid-area: balthasar-start / balthasar-start / balthasar-end / balthasar-end;
+}
+
+.magi>.wise-man.balthasar,
+.magi>.wise-man.balthasar>.inner {
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 75% 100%, 25% 100%, 0 80%);
+}
+
+.magi>.wise-man.casper {
+    grid-area: casper-start / casper-start / casper-end / casper-end;
+}
+
+.magi>.wise-man.casper,
+.magi>.wise-man.casper>.inner {
+    clip-path: polygon(0 0, 65% 0, 100% 44%, 100% 100%, 0 100%);
+}
+
+@keyframes flicker-animation {
+    0% {}
+
+    50% {
+        background: black;
+        color: black;
+        border-color: black;
+    }
+}
+
+.flicker {
+    animation: flicker-animation 0.25s infinite step-end;
+}
+
+
+.connection {
+    height: 10px;
+    background: #ff8d00;
+    align-self: center;
+    margin: -10%;
+}
+
+.connection.casper-balthasar {
+    grid-area: casper-balthasar-connection;
+    transform: rotate(-54deg);
+}
+
+.connection.casper-melchior {
+    grid-area: casper-melchior-connection;
+}
+
+.connection.balthasar-melchior {
+    grid-area: balthasar-melchior-connection;
+    transform: rotate(54deg);
+}
+
+.modal {
+    border: 2px solid #ff8d00;
+    color: #ff8d00;
+    font-family: 'Helvetica';
+    font-family: 'Lucida Console';
+    position: absolute;
+    background: black;
+    max-width: 60%;
+    top: 10%;
+    right: 10%;
+}
+
+.modal>.modal-header {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid #ff8d00;
+}
+
+.modal>.modal-header>.modal-title {
+    flex: 1;
+    padding: 5px;
+    background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 10px, #211200 10px, #211200 20px);
+}
+
+.modal>.modal-header>.close {
+    padding: 5px;
+    border-left: 2px solid #ff8d00;
+    cursor: pointer;
+}
+
+.modal>.modal-body {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 10px;
+    padding: 10px;
+}
+
+.input-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    color: #ff8d00;
+    font-family: 'Helvetica';
+    font-family: 'Lucida Console';
+    column-gap: 10px;
+    row-gap: 5px;
+    margin-top: 15px;
+}
+
+.input-container>input {
+    background: #1f1203;
+    border: 2px solid #ff8d00;
+    color: #ff8d00;
+}
+/* ---- end of TomaszRewak/MAGI style.css ---- */
+</style>
+<style>
+/* ---- MAGI-UI additions ---- */
 @font-face {
     font-family: 'MAGI Kanji Serif';
     src: url(data:font/woff2;base64,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) format('woff2');
@@ -19,359 +313,126 @@
     font-display: block;
 }
 
-:root {
-    --frame: #ff8a00;
-    --frame-dim: #7a4300;
-    --rule: #2f7d52;
-    --bg: #050302;
-    --approve: #4ad98a;
-    --reject: #b3191a;
-    --info: #38a9dc;
-    --hold: #e09a2c;
-    --error: #6f6f6f;
-    --mono: 'Lucida Console', 'DejaVu Sans Mono', Consolas, monospace;
-    --sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-    --kanji: 'MAGI Kanji Serif', 'Noto Serif CJK JP', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+/* Serif kanji. Upstream stretches the header kanji 2x, which squashes a serif face; 1.3x. */
+.magi>.header>span,
+.magi>.response>.inner {
+    font-family: 'MAGI Kanji Serif', 'Noto Serif CJK JP', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+}
+.magi>.header>span { transform: scaleX(1.3); }
+
+/* The status lines in a monospace face even where Lucida Console is missing. */
+.magi>.system-status, .modal, .input-container {
+    font-family: 'Lucida Console', 'DejaVu Sans Mono', Consolas, monospace;
 }
 
-* { box-sizing: border-box; }
+/* Upstream's .modal is positioned against the .system box. */
+.modal { z-index: 10; max-height: 80%; overflow: auto; }
+.modal>.modal-body>div:nth-child(odd) { white-space: nowrap; }
+.modal>.modal-body>div:nth-child(even) { color: #ffd29a; overflow-wrap: anywhere; }
+.modal ul { margin: 0; padding-left: 1.2em; }
+.modal .note { color: #ff8d00; }
 
-html {
-    min-height: 100vh;
-    background: repeating-linear-gradient(-45deg, #000 0 18px, #120a02 18px 36px);
-}
-
-body {
-    margin: 16px;
-    color: var(--frame);
-    font-family: var(--mono);
-}
-
-.console {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: var(--bg);
-    border: 2px solid var(--frame);
-    padding: 14px;
-}
-
-/* --- top band: agenda on the left, resolution on the right --- */
-.band {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-}
-
-.plate {
-    border: 2px solid var(--frame);
-    padding: 10px 14px 12px;
-    min-height: 150px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.plate-title {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    gap: 14px;
-}
-
-.plate-title::before, .plate-title::after {
-    content: '';
-    height: 10px;
-    border-top: 3px double var(--rule);
-    border-bottom: 3px double var(--rule);
-}
-
-.kanji {
-    font-family: var(--kanji);
-    font-weight: 800;
-    letter-spacing: 0.35em;
-    margin-right: -0.35em;
-}
-
-.plate-title .kanji {
-    font-size: clamp(28px, 5vw, 54px);
-    display: inline-block;
-    margin: 0 0.45em;
-    padding-left: 0.35em;   /* balances the trailing letter-spacing */
-    transform: scaleX(1.3);
-}
-
-.agenda {
-    font-family: var(--sans);
-    font-size: 17px;
-    line-height: 1.35;
-    color: #ffd29a;
-    overflow-wrap: anywhere;
-}
-
-.status-lines {
-    margin-top: auto;
-    font-size: 13px;
-    line-height: 1.35;
-    letter-spacing: 0.04em;
-}
-
-.status-lines .code { font-size: 26px; }
-
-.resolution {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    flex-wrap: wrap;
-}
-
-.badge {
-    border: 2px solid currentColor;
-    padding: 3px;
-}
-
-.badge > span {
-    display: block;
-    border: 2px solid currentColor;
-    margin: 0;
-    padding: 4px 14px 4px calc(14px + 0.35em);   /* letter-spacing leaves room on the right */
-    font-size: clamp(26px, 4vw, 44px);
-}
-
-.count {
-    font-family: var(--sans);
-    font-size: 20px;
-    color: #ffd29a;
-}
-
-.note {
-    font-family: var(--sans);
-    font-size: 14px;
-    color: #ffd29a;
-    line-height: 1.4;
-}
-
-/* --- the three units --- */
-.units {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr 0.55fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 18px 0;
-    margin: 18px 0 6px;
-}
-
-.unit {
-    border: 2px solid var(--frame);
-    padding: 3px;
-    cursor: pointer;
-    background: none;
-    color: inherit;
-    font: inherit;
-    text-align: center;
-}
-
-.unit:focus-visible, .unit.selected { border-color: #fff; }
-
-.unit .face {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 6px;
-    min-height: 130px;
-    padding: 10px;
-    color: #000;
-    clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
-}
-
-.unit .name {
-    font-family: var(--sans);
-    font-weight: 700;
-    font-size: clamp(20px, 3vw, 34px);
-    letter-spacing: 0.02em;
-}
-
-.unit .perspective {
-    font-family: var(--sans);
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.unit.balthasar { grid-column: 1 / 4; grid-row: 1; justify-self: center; width: 44%; }
-.unit.casper { grid-column: 1; grid-row: 2; }
-.unit.melchior { grid-column: 3; grid-row: 2; }
-
-.core {
-    grid-column: 2;
-    grid-row: 2;
-    align-self: center;
-    text-align: center;
-    font-family: var(--sans);
-    font-weight: 700;
-    font-size: clamp(26px, 4vw, 46px);
-    letter-spacing: 0.08em;
-}
-
-.core::before, .core::after {
-    content: '';
-    display: block;
-    height: 4px;
-    margin: 8px 12%;
-    background: var(--frame);
-}
-
-/* --- details --- */
-.details {
-    border: 2px solid var(--frame-dim);
-    margin-top: 14px;
-    padding: 12px 14px;
-    font-size: 14px;
-    line-height: 1.5;
-    min-height: 64px;
-}
-
-.details h2 {
-    margin: 0 0 6px;
-    font-size: 15px;
-    letter-spacing: 0.06em;
-}
-
-.details dl {
-    display: grid;
-    grid-template-columns: max-content 1fr;
-    gap: 4px 14px;
-    margin: 0;
-}
-
-.details dt { color: var(--frame); }
-.details dd { margin: 0; color: #ffe2bd; font-family: var(--sans); overflow-wrap: anywhere; }
-.details ul { margin: 0; padding-left: 18px; }
-.muted { color: var(--frame-dim); }
-
-/* --- loading --- */
-.loader {
-    display: grid;
-    grid-template-columns: auto auto 1fr;
-    gap: 10px;
-    align-items: center;
-    margin-top: 14px;
-    font-size: 13px;
-}
-
-.loader label {
-    border: 2px solid var(--frame);
-    padding: 4px 10px;
+/* The input row: a results folder, files, and the list of results. */
+.input-container { grid-template-columns: auto auto auto 1fr; align-items: center; }
+.input-container>label.pick {
+    border: 2px solid #ff8d00;
+    padding: 1px 8px;
     cursor: pointer;
 }
-
-.loader input[type=file] { display: none; }
-
-.loader select {
-    background: #1b0f02;
-    color: var(--frame);
-    border: 2px solid var(--frame);
+.input-container input[type=file] { display: none; }
+.input-container>select {
+    background: #1f1203;
+    border: 2px solid #ff8d00;
+    color: #ff8d00;
     font: inherit;
-    padding: 3px 6px;
     min-width: 0;
 }
-
-.dropzone.over .console { outline: 3px dashed var(--frame); outline-offset: 6px; }
-
-.error-text { color: #ff6b5e; }
-
-@media (max-width: 720px) {
-    .band { grid-template-columns: 1fr; }
-    .unit.balthasar { width: 70%; }
-}
+body.over .system { outline: 3px dashed #ff8d00; outline-offset: 6px; }
 </style>
 </head>
-<body class="dropzone">
-<main class="console">
-    <section class="band">
-        <div class="plate">
-            <div class="plate-title"><span class="kanji">議題</span></div>
-            <div class="agenda" id="agenda"></div>
-            <div class="status-lines" id="status"></div>
-        </div>
-        <div class="plate">
-            <div class="plate-title"><span class="kanji">決議</span></div>
-            <div class="resolution">
-                <div class="badge" id="badge"><span class="kanji" id="badge-text">情報</span></div>
-                <div class="count" id="count"></div>
-            </div>
-            <div class="note" id="note"></div>
-        </div>
-    </section>
-
-    <section class="units" id="units"></section>
-
-    <section class="details" id="details" aria-live="polite"></section>
-
-    <section class="loader">
-        <label><input type="file" id="pick-folder" webkitdirectory multiple><span id="label-folder"></span></label>
-        <label><input type="file" id="pick-files" accept=".json,application/json" multiple><span id="label-files"></span></label>
+<body>
+<div class="system" id="system">
+    <div class="magi" id="magi">
+        <div class="connection casper-balthasar"></div>
+        <div class="connection casper-melchior"></div>
+        <div class="connection balthasar-melchior"></div>
+        <div class="header left"><hr><hr><span>議 題</span><hr><hr></div>
+        <div class="header right"><hr><hr><span>決 議</span><hr><hr></div>
+        <div class="system-status" id="status"></div>
+        <div class="wise-man melchior" data-unit="melchior"><div class="inner">MELCHIOR • 1</div></div>
+        <div class="wise-man balthasar" data-unit="balthasar"><div class="inner">BALTHASAR • 2</div></div>
+        <div class="wise-man casper" data-unit="casper"><div class="inner">CASPER • 3</div></div>
+        <div class="response" id="response"><div class="inner" id="response-text">情 報</div></div>
+        <div class="title">MAGI</div>
+    </div>
+    <div class="input-container">
+        <label class="pick"><input type="file" id="pick-folder" webkitdirectory multiple><span id="label-folder"></span></label>
+        <label class="pick"><input type="file" id="pick-files" accept=".json,application/json" multiple><span id="label-files"></span></label>
+        <span id="label-results"></span>
         <select id="results" aria-label="results"></select>
-    </section>
-</main>
+    </div>
+    <div class="modal" id="modal" hidden>
+        <div class="modal-header"><div class="modal-title" id="modal-title"></div><div class="close" id="modal-close">X</div></div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
 
 <script>
 'use strict';
 
 const UNITS = [
-    { key: 'melchior', name: 'MELCHIOR', n: 1 },
-    { key: 'balthasar', name: 'BALTHASAR', n: 2 },
-    { key: 'casper', name: 'CASPER', n: 3 },
+    { key: 'melchior', name: 'melchior', label: 'MELCHIOR-1' },
+    { key: 'balthasar', name: 'balthasar', label: 'BALTHASAR-2' },
+    { key: 'casper', name: 'casper', label: 'CASPER-3' },
 ];
 const MODES = ['deliberation', 'information'];
 const GRADES = ['normal', 'critical'];
 const VERDICTS = ['passed', 'rejected', 'on_hold', 'error'];
 const UNIT_VERDICTS = ['approve', 'reject', 'error'];
 
-// The result panel: 可決 / 否決 rather than "agreement / refusal", since a 2/3 pass is not an
-// agreement; 異常 for a failed unit. 保留 has no glyph in the bundled font, so an on-hold result
-// (skill versions before 1.6.0) shows 情報 with a note, as before.
-const BADGE = {
-    passed: { kanji: '可決', color: 'var(--approve)' },
-    rejected: { kanji: '否決', color: 'var(--reject)' },
-    on_hold: { kanji: '情報', color: 'var(--hold)' },
-    error: { kanji: '異常', color: 'var(--error)' },
-    information: { kanji: '情報', color: 'var(--info)' },
+// Upstream's colors (components/wise_man.js and response.js).
+const PANEL = { approve: '#52e691', reject: '#a41413', info: '#3caee0', error: 'black' };
+// The result box: 可決 / 否決 rather than upstream's 合意 / 拒絶, since a 2/3 pass is not an
+// agreement; 異常 rather than 誤差 for a failed unit. On hold (skill versions before 1.6.0)
+// shows 情報 with a note, as upstream's adapter did.
+const RESPONSE = {
+    passed: { text: '可 決', color: '#52e691' },
+    rejected: { text: '否 決', color: '#a41413' },
+    on_hold: { text: '情 報', color: '#3caee0' },
+    error: { text: '異 常', color: 'gray' },
+    information: { text: '情 報', color: '#3caee0' },
 };
-const FACE = { approve: 'var(--approve)', reject: 'var(--reject)', error: 'var(--error)', info: 'var(--info)', idle: '#2a1a08' };
 
 const TEXT = {
     en: {
-        folder: 'results folder', files: 'result files', none: '— no result loaded —',
-        waiting: 'Choose a results folder or drop result files on the page.',
-        clickUnit: 'Click a unit to see its opinion.',
-        verdict: 'verdict', confidence: 'confidence', rationale: 'rationale', flip: 'would flip if',
-        premise: 'doubted premise', recommend: 'recommendations', answer: 'answer', error: 'error',
-        perspective: 'perspective', followUp: 'follow-up', minority: 'minority opinion',
+        folder: 'results folder', files: 'result files', results: 'result:', none: '— none —',
+        question: 'question:', file: 'file:', resolution: 'resolution:', verdict: 'verdict:', confidence: 'confidence:',
+        perspective: 'perspective:', rationale: 'rationale:', flip: 'would flip:', premise: 'doubted premise:',
+        recommend: 'recommendations:', answer: 'answer:', error: 'error:', followUp: 'follow-up', minority: 'minority:',
         approve: 'approve', reject: 'reject', high: 'high', medium: 'medium', low: 'low',
-        normal: 'NORMAL', critical: 'CRITICAL',
+        normal: 'normal', critical: 'critical',
         passed: 'passed', rejected: 'rejected', on_hold: 'on hold', information: 'information',
-        approvals: n => `approve ${n}/3`,
-        majority: n => `Passed by ${n}/3: a normal proposal needs two of the three aspects.`,
-        unanimity: n => `Rejected with ${n}/3 approvals: a critical proposal needs all three.`,
-        hold: 'On hold (a result from a skill version before 1.6.0).',
-        unitError: 'A unit failed, so the resolution is an error rather than a vote of two.',
-        invalid: m => `Result format error: ${m}`, json: m => `JSON error: ${m}`,
+        majority: n => `* passed by ${n}/3: a normal proposal needs two of the three aspects`,
+        unanimity: n => `* rejected with ${n}/3 approvals: a critical proposal needs all three`,
+        hold: '* on hold: a result of a skill version before 1.6.0 (no screen label, shown as 情報)',
+        unitError: '* a unit failed, so the resolution is an error rather than a vote of two',
+        invalid: m => `result format error: ${m}`, json: m => `JSON error: ${m}`,
+        waiting: 'Choose a results folder or drop result files on the page.',
     },
     ko: {
-        folder: '결과 폴더', files: '결과 파일', none: '— 불러온 결과 없음 —',
-        waiting: '결과 폴더를 고르거나 결과 파일을 화면에 끌어다 놓으세요.',
-        clickUnit: '유닛을 누르면 그 유닛의 의견이 보입니다.',
-        verdict: '판정', confidence: '확신도', rationale: '근거', flip: '뒤집힐 조건',
-        premise: '의심하는 전제', recommend: '권고', answer: '답', error: '오류',
-        perspective: '관점', followUp: '후속', minority: '소수 의견',
+        folder: '결과 폴더', files: '결과 파일', results: '결과:', none: '— 없음 —',
+        question: '[안건]', file: '[파일]', resolution: '[결의]', verdict: '[판정]', confidence: '[확신도]',
+        perspective: '[관점]', rationale: '[근거]', flip: '[뒤집힐 조건]', premise: '[의심하는 전제]',
+        recommend: '[권고]', answer: '[답]', error: '[오류]', followUp: '[후속', minority: '[소수 의견]',
         approve: '승인', reject: '거부', high: '높음', medium: '중간', low: '낮음',
         normal: '정상 등급', critical: '중대 등급',
         passed: '가결', rejected: '부결', on_hold: '보류', information: '정보',
-        approvals: n => `승인 ${n}/3`,
-        majority: n => `${n}/3 가결: 정상 등급은 세 측면 중 둘이면 가결입니다.`,
-        unanimity: n => `${n}/3 승인으로 부결: 중대 등급은 셋 모두 승인해야 합니다.`,
-        hold: '보류 (스킬 1.6.0 이전 버전의 결과).',
-        unitError: '유닛 하나가 실패해서, 두 유닛의 표로 정하지 않고 오류로 처리했습니다.',
+        majority: n => `※ ${n}/3 가결: 정상 등급은 세 측면 중 둘이면 가결`,
+        unanimity: n => `※ ${n}/3 승인으로 부결: 중대 등급은 셋 모두 승인해야 함`,
+        hold: '※ 보류: 스킬 1.6.0 이전 버전의 결과 (대응하는 화면 라벨이 없어 情報로 표시)',
+        unitError: '※ 유닛 하나가 실패해서 두 유닛의 표로 정하지 않고 오류로 처리',
         invalid: m => `결과 형식 오류: ${m}`, json: m => `JSON 형식 오류: ${m}`,
+        waiting: '결과 폴더를 고르거나 결과 파일을 화면에 끌어다 놓으세요.',
     },
 };
 const LANG = (new URLSearchParams(location.search).get('lang') || navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
@@ -390,12 +451,8 @@ const PRESETS = [
 const $ = id => document.getElementById(id);
 function el(tag, attrs = {}, ...children) {
     const node = document.createElement(tag);
-    for (const [k, v] of Object.entries(attrs)) {
-        if (k === 'class') node.className = v;
-        else if (k === 'style') Object.assign(node.style, v);
-        else node.setAttribute(k, v);
-    }
-    for (const c of children) if (c !== null && c !== undefined) node.append(c);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    for (const c of children) if (c !== null && c !== undefined && c !== '') node.append(c);
     return node;
 }
 
@@ -437,30 +494,17 @@ function presetCode(preset) {
     return head ? 'CUSTOM' : '----';
 }
 function statusFields(d, file) {
-    if (!d) return { code: '473', ext: '????', priority: 'AAA' };
+    if (!file) return { code: '473', ext: '????', priority: 'AAA' };   // upstream's look before a query
+    if (!d) return { code: '????', ext: '????', priority: '????' };
     const m = /^\d{8}-(\d{4})\d{2}-/.exec(file.name);
     const time = m ? m[1] : new Date(file.lastModified).toTimeString().slice(0, 5).replace(':', '');
-    const priority = { critical: 'AAA', normal: 'A' }[d.grade] || '----';
-    return { code: time, ext: presetCode(d.preset), priority };
+    return { code: time, ext: presetCode(d.preset), priority: { critical: 'AAA', normal: 'A' }[d.grade] || '----' };
 }
 
-// --- rendering ---
-let current = null;      // { data, file }
-let selected = null;     // unit key
-
-function renderStatus(d, file) {
-    const s = statusFields(d, file);
-    $('status').replaceChildren(
-        el('div', { class: 'code' }, `CODE:${s.code}`),
-        el('div', {}, 'FILE:MAGI_SYS'),
-        el('div', {}, `EXTENTION:${s.ext}`),
-        el('div', {}, 'EX_MODE:OFF'),
-        el('div', {}, `PRIORITY:${s.priority}`));
-}
-
+const approvals = p => p.approve_count ?? UNITS.filter(u => p.units[u.key].verdict === 'approve').length;
 function noteFor(d) {
     if (d.mode !== 'deliberation') return '';
-    const n = d.approve_count ?? UNITS.filter(u => d.units[u.key].verdict === 'approve').length;
+    const n = approvals(d);
     if (d.verdict === 'on_hold') return T.hold;
     if (d.verdict === 'error') return T.unitError;
     if (d.verdict === 'passed' && n < 3) return T.majority(n);
@@ -468,122 +512,122 @@ function noteFor(d) {
     return '';
 }
 
-function render() {
+// --- the screen ---
+let current = null;   // { data, file, error }
+let openUnit = null;
+
+function flicker(node) {
+    node.classList.add('flicker');
+    setTimeout(() => node.classList.remove('flicker'), 700);
+}
+
+function render(animate) {
     const d = current && current.data;
-    $('agenda').textContent = d ? d.agenda : T.waiting;
-    renderStatus(d, current && current.file);
+    const s = statusFields(d, current && current.file);
+    $('status').replaceChildren(
+        el('div', {}, `CODE:${s.code}`), el('div', {}, 'FILE:MAGI_SYS'), el('div', {}, `EXTENTION:${s.ext}`),
+        el('div', {}, 'EX_MODE:OFF'), el('div', {}, `PRIORITY:${s.priority}`));
 
-    const key = !d ? 'information' : d.mode === 'information' ? 'information' : d.verdict;
-    const badge = BADGE[key];
-    $('badge').style.color = badge.color;
-    $('badge-text').textContent = badge.kanji;
-    const n = d && d.mode === 'deliberation' ? (d.approve_count ?? UNITS.filter(u => d.units[u.key].verdict === 'approve').length) : null;
-    $('count').textContent = d ? (d.mode === 'deliberation'
-        ? `${T[d.verdict] || d.verdict} · ${T.approvals(n)} · ${T[d.grade]}${d.grade_raised ? ' ↑' : ''}`
-        : T.information) : '';
-    $('note').textContent = d ? noteFor(d) : '';
+    const key = !current ? 'information' : current.error ? 'error' : d.mode === 'information' ? 'information' : d.verdict;
+    const r = RESPONSE[key];
+    const box = $('response');
+    box.style.color = r.color;
+    box.style.borderColor = r.color;
+    $('response-text').textContent = r.text;
 
-    const units = UNITS.map(u => {
-        const unit = d ? d.units[u.key] : null;
-        const state = !unit ? 'idle' : d.mode === 'information' ? 'info' : unit.verdict;
-        const btn = el('button', { class: `unit ${u.key}${selected === u.key ? ' selected' : ''}`, type: 'button' },
-            el('div', { class: 'face', style: { background: FACE[state] } },
-                el('div', { class: 'name' }, `${u.name} • ${u.n}`),
-                unit && unit.perspective ? el('div', { class: 'perspective' }, unit.perspective) : null));
-        btn.addEventListener('click', () => { if (d) { selected = u.key; render(); } });
-        return btn;
-    });
-    $('units').replaceChildren(...units, el('div', { class: 'core' }, 'MAGI'));
-    renderDetails(d);
+    for (const u of UNITS) {
+        const inner = document.querySelector(`.wise-man.${u.key}>.inner`);
+        const unit = d && d.units[u.key];
+        inner.style.background = !current ? PANEL.info : current.error ? PANEL.error
+            : d.mode === 'information' ? PANEL.info : PANEL[unit.verdict];
+        if (animate) flicker(inner);
+    }
+    if (animate) flicker(box);
+    if (openUnit) showModal(openUnit);
 }
 
-function list(items) {
-    return el('ul', {}, ...items.map(i => el('li', {}, String(i))));
-}
-
-function renderDetails(d) {
-    const box = $('details');
-    if (!d) { box.replaceChildren(el('span', { class: 'muted' }, T.waiting)); return; }
-    const parts = [];
-    if (!selected) {
-        parts.push(el('div', { class: 'muted' }, T.clickUnit));
+const list = items => el('ul', {}, ...items.map(i => el('li', {}, String(i))));
+function showModal(key) {
+    openUnit = key;
+    const u = UNITS.find(x => x.key === key);
+    const rows = [];
+    const add = (label, value) => {
+        if (value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length)) return;
+        rows.push(el('div', {}, label), el('div', {}, Array.isArray(value) ? list(value) : String(value)));
+    };
+    $('modal-title').textContent = u.name;
+    if (!current) {
+        add(T.question, T.waiting);
+    } else if (current.error) {
+        add(T.file, current.file.name);
+        add(T.error, current.error);
     } else {
-        const u = UNITS.find(x => x.key === selected);
-        const unit = d.units[selected];
-        const rows = [];
-        const add = (label, value) => { if (value !== undefined && value !== null && value !== '' && !(Array.isArray(value) && !value.length)) rows.push(el('dt', {}, label), el('dd', {}, Array.isArray(value) ? list(value) : String(value))); };
-        add(T.perspective, unit.perspective);
-        if (d.mode === 'information') {
-            add(T.answer, unit.answer);
-        } else {
-            add(T.verdict, [T[unit.verdict] || unit.verdict, unit.confidence ? `${T.confidence} ${T[unit.confidence] || unit.confidence}` : ''].filter(Boolean).join(' · '));
+        const d = current.data, unit = d.units[key];
+        add(T.question, d.agenda);
+        add(T.file, current.file.name);
+        if (d.mode === 'deliberation') {
+            add(T.resolution, `${T[d.verdict] || d.verdict} (${approvals(d)}/3) · ${T[d.grade]}${d.grade_raised ? ' ↑' : ''}`);
+            const note = noteFor(d);
+            if (note) rows.push(el('div', {}), el('div', { class: 'note' }, note));
+            add(T.perspective, unit.perspective);
+            add(T.verdict, [T[unit.verdict] || unit.verdict, unit.confidence ? `${T.confidence.replace(/[\[\]:]/g, '')} ${T[unit.confidence] || unit.confidence}` : ''].filter(Boolean).join(' · '));
             add(T.error, unit.error);
             add(T.rationale, unit.rationale);
             add(T.flip, unit.flip_condition);
             add(T.premise, unit.doubted_premise);
             add(T.recommend, unit.recommendations);
             (d.follow_ups || []).forEach((f, i) => {
-                const fu = f.units && f.units[selected];
+                const fu = f.units && f.units[key];
                 if (!fu) return;
-                const n = f.approve_count ?? UNITS.filter(x => f.units[x.key].verdict === 'approve').length;
-                add(`${T.followUp} ${i + 1}`, [f.agenda, `${T[f.verdict] || f.verdict} (${n}/3) — ${T[fu.verdict] || fu.verdict}${fu.confidence ? ' · ' + (T[fu.confidence] || fu.confidence) : ''}`, ...(fu.rationale || []), fu.error || ''].filter(Boolean));
+                const label = LANG === 'ko' ? `${T.followUp} ${i + 1}]` : `${T.followUp} ${i + 1}:`;
+                add(label, [f.agenda, `${T[f.verdict] || f.verdict} (${approvals(f)}/3) — ${T[fu.verdict] || fu.verdict}${fu.confidence ? ' · ' + (T[fu.confidence] || fu.confidence) : ''}`, ...(fu.rationale || []), fu.error || ''].filter(Boolean));
             });
+            add(T.minority, d.minority);
+        } else {
+            add(T.perspective, unit.perspective);
+            add(T.answer, unit.answer);
         }
-        parts.push(el('h2', {}, `${u.name} • ${u.n}`), el('dl', {}, ...rows));
     }
-    if (d.minority) parts.push(el('dl', { style: { marginTop: '10px' } }, el('dt', {}, T.minority), el('dd', {}, d.minority)));
-    box.replaceChildren(...parts);
-}
-
-function showError(message, file) {
-    current = null; selected = null;
-    render();
-    $('agenda').replaceChildren(el('span', { class: 'error-text' }, message));
-    $('badge').style.color = BADGE.error.color;
-    $('badge-text').textContent = BADGE.error.kanji;
-    $('count').textContent = file ? file.name : '';
+    $('modal-body').replaceChildren(...rows);
+    $('modal').hidden = false;
 }
 
 // --- loading ---
 let files = [];
-function sortNewest(list) {
-    return list.slice().sort((a, b) => (b.name > a.name) - (b.name < a.name) || b.lastModified - a.lastModified);
-}
 function setFiles(incoming) {
-    files = sortNewest([...incoming].filter(f => f.name.toLowerCase().endsWith('.json')));
-    const sel = $('results');
-    sel.replaceChildren(...(files.length ? files.map((f, i) => el('option', { value: String(i) }, f.name)) : [el('option', {}, T.none)]));
-    if (files.length) open(files[0]);
+    files = [...incoming].filter(f => f.name.toLowerCase().endsWith('.json'))
+        .sort((a, b) => (b.name > a.name) - (b.name < a.name) || b.lastModified - a.lastModified);
+    $('results').replaceChildren(...(files.length ? files.map((f, i) => el('option', { value: String(i) }, f.name)) : [el('option', {}, T.none)]));
+    if (files.length) load(files[0]);
 }
-async function open(file) {
-    let data;
+async function load(file) {
+    let data, error = null;
     try {
         data = JSON.parse(await file.text());
-    } catch (e) {
-        return showError(T.json(e.message), file);
-    }
-    try {
         validate(data);
     } catch (e) {
-        if (e instanceof ResultError) return showError(T.invalid(e.message), file);
-        throw e;
+        if (e instanceof SyntaxError) error = T.json(e.message);
+        else if (e instanceof ResultError) error = T.invalid(e.message);
+        else throw e;
+        data = null;
     }
-    current = { data, file };
-    selected = null;
-    render();
+    current = { data, file, error };
+    render(true);
 }
 
 $('label-folder').textContent = T.folder;
 $('label-files').textContent = T.files;
+$('label-results').textContent = T.results;
+$('results').replaceChildren(el('option', {}, T.none));
 $('pick-folder').addEventListener('change', e => setFiles(e.target.files));
 $('pick-files').addEventListener('change', e => setFiles(e.target.files));
-$('results').addEventListener('change', e => { const f = files[Number(e.target.value)]; if (f) open(f); });
+$('results').addEventListener('change', e => { const f = files[Number(e.target.value)]; if (f) load(f); });
+$('modal-close').addEventListener('click', () => { openUnit = null; $('modal').hidden = true; });
+document.querySelectorAll('.wise-man').forEach(w => w.addEventListener('click', () => showModal(w.dataset.unit)));
 document.addEventListener('dragover', e => { e.preventDefault(); document.body.classList.add('over'); });
 document.addEventListener('dragleave', () => document.body.classList.remove('over'));
 document.addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('over'); setFiles(e.dataTransfer.files); });
-
-$('results').replaceChildren(el('option', {}, T.none));
-render();
+render(false);
 </script>
 </body>
 </html>
