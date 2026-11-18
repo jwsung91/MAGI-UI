@@ -1,8 +1,17 @@
 diff --git a/main.py b/main.py
-index 2e5d350..c9f515b 100644
+index 2e5d350..a78f004 100644
 --- a/main.py
 +++ b/main.py
-@@ -57,11 +57,12 @@ app.layout = Div(
+@@ -39,8 +39,6 @@ app.layout = Div(
+             Response(id='response', status='info')
+         ]),
+         Div(className='input-container', children=[
+-            Label('access code: '),
+-            dcc.Input(id='key', autoComplete='off', type='password', value=os.getenv('OPENAI_API_KEY', '')),
+             Label('question: '),
+             dcc.Input(id='query', type='text', value='', debounce=True, autoComplete='off'),
+         ]),
+@@ -57,21 +55,21 @@ app.layout = Div(
  
  @callback(
      Output('question', 'data'),
@@ -18,16 +27,37 @@ index 2e5d350..c9f515b 100644
  
  
  @callback(
-@@ -107,7 +108,7 @@ def extention(question: dict, annotated_question: dict):
+     Output('annotated-question', 'data'),
+     Input('question', 'data'),
+-    State('key', 'value'),
      prevent_initial_call=True)
- def wise_man_answer(question: dict, personality: str, key: str):
+-def annotated_question(question: dict, key: str):
++def annotated_question(question: dict):
+     try:
+-        is_yes_or_no_question = ai.is_yes_or_no_question(question['query'], key)
++        is_yes_or_no_question = ai.is_yes_or_no_question(question['query'])
+ 
+         return {
+             'id': question['id'],
+@@ -103,24 +101,24 @@ def extention(question: dict, annotated_question: dict):
+     Output({'type': 'wise-man', 'name': MATCH}, 'answer'),
+     Input('annotated-question', 'data'),
+     State({'type': 'wise-man', 'name': MATCH}, 'personality'),
+-    State('key', 'value'),
+     prevent_initial_call=True)
+-def wise_man_answer(question: dict, personality: str, key: str):
++def wise_man_answer(question: dict, personality: str):
      if question['error']:
 -        return {'id': question['id'], 'response': question['error'], 'status': 'error'}
 +        return {'id': question['id'], 'response': question['error'], 'status': 'error', 'error': question['error'], 'verdict': 'error'}
  
      try:
-         answer = ai.get_answer(question['query'], personality, key)
-@@ -117,10 +118,11 @@ def wise_man_answer(question: dict, personality: str, key: str):
+-        answer = ai.get_answer(question['query'], personality, key)
++        answer = ai.get_answer(question['query'], personality)
+ 
+         if question['is_yes_or_no_question']:
+-            classification = ai.classify_answer(question['query'], personality, answer, key)
++            classification = ai.classify_answer(question['query'], personality, answer)
          else:
              classification = {'status': 'info', 'conditions': None}
  
@@ -41,7 +71,7 @@ index 2e5d350..c9f515b 100644
  
  
  @callback(
-@@ -146,6 +148,13 @@ def response_status(answers: list):
+@@ -146,6 +144,13 @@ def response_status(answers: list):
      answer_id = min([answer['id'] for answer in answers])
      status = 'info'
  
@@ -55,7 +85,7 @@ index 2e5d350..c9f515b 100644
      if any([answer['status'] == 'error' for answer in answers]):
          status = 'error'
      elif any([answer['status'] == 'no' for answer in answers]):
-@@ -172,8 +181,16 @@ def modal_visibility():
+@@ -172,8 +177,16 @@ def modal_visibility():
      Input('question', 'data'),
      Input({'type': 'wise-man', 'name': MATCH}, 'answer'))
  def modal_content(question: dict, answer: dict):

@@ -11,13 +11,14 @@ TomaszRewak/MAGI is a Dash app whose `ai.py` asks OpenAI. MAGI-UI keeps the orig
 | File | What it does |
 |---|---|
 | `ai.py` | Drop-in replacement with the same function names. Reads a MAGI result JSON instead of calling OpenAI. |
-| `main.py.patch` | Small callback patch: reload on every Enter, use the skill's resolution for the result panel, show the proposal text in the modal, bind to `127.0.0.1` with debug off. |
-| `setup.sh` | Fetches upstream at a pinned commit, applies the two changes above, creates a virtualenv, copies samples. |
+| `main.py.patch` | Small callback patch: reload on every Enter, use the skill's resolution for the result panel, show the proposal text in the modal, bind to `127.0.0.1` with debug off, and drop upstream's **access code** field (its OpenAI key box, unused here). |
+| `assets/magi-ui.css`, `assets/fonts/` | The kanji labels (質問, 解決, 情報, 合意, 拒絶, 誤差) in a serif face. The font holds only those characters, cut from Noto Serif JP (SIL Open Font License), so it looks the same on every machine and needs no network. |
+| `setup.sh` | Fetches upstream at a pinned commit, applies the changes above, creates a virtualenv, copies samples. |
 | `requirements.lock` | Tested dependency versions (Python 3.13, dash 2.18.2). |
 | `samples/` | Result files for every outcome. |
 | `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json). |
 
-The upstream graphics (`components/*.js`, `assets/style.css`) and layout are not modified.
+The upstream graphics (`components/*.js`, `assets/style.css`) are not modified; `assets/magi-ui.css` only overrides the font of the kanji labels, and the layout differs only by the missing access code field.
 
 ## Install and run
 
@@ -38,8 +39,6 @@ Open `http://127.0.0.1:8050`, type a file name (e.g. `02_passed_2of3.json`) or `
 | `MAGI_RESULTS_DIR` | `results` | Folder the viewer reads |
 | `MAGI_UI_LANG` | `en` | Modal labels: `en` or `ko` |
 | `MAGI_PORT` | `8050` | Port |
-
-The **access code** field is upstream's OpenAI key box and is not used.
 
 ## Connect the skill
 

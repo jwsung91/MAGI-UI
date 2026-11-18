@@ -1,0 +1,19 @@
+/* MAGI-UI additions on top of the upstream style.css, which is not modified.
+   Dash loads every CSS file in assets/ in alphabetical order, so style.css comes
+   after this file; the selectors start with .system to win on specificity. */
+
+/* The kanji labels (質問, 解決, and the result panel's 情報, 合意, 拒絶, 状態, 誤差)
+   in a serif face. The bundled font holds only those characters, cut from
+   Noto Serif JP (SIL Open Font License, see fonts/OFL.txt), so it looks the same
+   on every machine without a network request; installed Mincho faces follow. */
+@font-face {
+    font-family: 'MAGI Kanji Serif';
+    src: url('fonts/magi-kanji-serif.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: block;
+}
+
+.system .magi>.header>span,
+.system .magi>.response>.inner {
+    font-family: 'MAGI Kanji Serif', 'Noto Serif CJK JP', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+}

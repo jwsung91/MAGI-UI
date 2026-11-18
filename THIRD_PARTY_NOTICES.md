@@ -29,3 +29,8 @@ SOFTWARE.
 ```
 
 Its screen design recreates the MAGI screen from *Neon Genesis Evangelion*. The MIT license above covers that project's code; it does not grant any rights in the original series or its designs.
+
+## Noto Serif JP
+
+`assets/fonts/magi-kanji-serif.woff2` is a subset of [Noto Serif JP](https://github.com/notofonts/noto-cjk) (Copyright 2012 Google Inc.), instanced at weight 800 and cut to the fourteen kanji the screen shows, renamed "MAGI Kanji Serif". It is distributed under the SIL Open Font License, Version 1.1; the full text is in `assets/fonts/OFL.txt`.
+
