@@ -58,8 +58,8 @@ Then type `latest` in the viewer and press Enter.
 | Skill resolution | Result panel |
 |---|---|
 | passed | passed (a 2/3 pass leaves the rejecting unit red; the modal notes it) |
-| rejected | rejected |
-| on hold | info (no matching label; the modal says it is on hold) |
+| rejected | rejected (a critical proposal rejected with 1 or 2 approvals leaves the approving units green; the modal notes that all three were needed, see `09_rejected_critical_2of3.json`) |
+| on hold | info (no matching label; the modal says it is on hold). Only results of skill versions before 1.6.0; from 1.6.0 a critical split is rejected |
 | error | error (unit error, malformed JSON, or invalid values) |
 | information mode | info |
 
@@ -69,7 +69,7 @@ Then type `latest` in the viewer and press Enter.
 | reject | red |
 | error | black |
 
-The panels show the main proposal. If the result records how each unit voted on follow-up proposals (`follow_ups[].units`), a unit's modal also lists each follow-up with its resolution and that unit's verdict, confidence, and rationale (see `08_follow_ups.json`). Older results without `follow_ups[].units` still load; their follow-ups are simply not shown. The rest of the resolution (grade, debate round, minority opinion) is in the skill's Markdown output.
+The panels show the main proposal. If the result records how each unit voted on follow-up proposals (`follow_ups[].units`), a unit's modal also lists each follow-up with its resolution and that unit's verdict, confidence, and rationale (see `08_follow_ups.json`). Older results without `follow_ups[].units` still load; their follow-ups are simply not shown. The rest of the resolution (grade, minority opinion, and the debate round of results before 1.6.0) is in the skill's Markdown output.
 
 ## Tested
 
