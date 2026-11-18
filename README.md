@@ -2,7 +2,13 @@
 
 A local viewer that shows results of the [MAGI skill](https://github.com/jwsung91/MAGI) on the screen of [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI).
 
-> **Unofficial.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. The screen comes from TomaszRewak/MAGI, a fan recreation, and is downloaded at install time; this repository contains none of its graphics. **Local use only:** the server binds to `127.0.0.1`; do not expose it to a network. If a rights holder asks, this repository will be taken down.
+> **Unofficial.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. The screen comes from TomaszRewak/MAGI, a fan recreation, and is downloaded at install time; this repository contains none of its code or graphics, only the two screenshots below. **Local use only:** the server binds to `127.0.0.1`; do not expose it to a network. If a rights holder asks, this repository will be taken down.
+
+| 2/3 pass, normal proposal | Critical proposal rejected at 2/3 |
+|---|---|
+| ![A 2/3 pass: two units green, CASPER-3 red, result panel 可決](docs/screenshot-passed.png) | ![A critical proposal rejected at 2/3: two units green, BALTHASAR-2 red, result panel 否決](docs/screenshot-rejected-critical.png) |
+
+Left: a real result of the skill (1.6.0, the Korean chatbot fixture), `PRIORITY:A`. Right: `samples/09_rejected_critical_2of3.json`, `PRIORITY:AAA`; a critical proposal needs all three approvals.
 
 ## How it works
 
