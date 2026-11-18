@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAGI-UI</title>
+<!--
+  MAGI-UI: a single-file viewer for results of the MAGI skill (result format version 2).
+  Open this file in a browser and drop result files or a results folder on the page, or click MAGI
+  to choose a folder. Click 議題 for the agenda, 決議 for the resolution, a unit for its opinion;
+  the left and right arrow keys move between the results loaded.
+  Files are read locally with the File API; nothing is sent anywhere.
+
+  The screen is the one of TomaszRewak/MAGI (https://github.com/TomaszRewak/MAGI, MIT License,
+  Copyright (c) 2023 Tomasz Rewak): its style.css is included unchanged in the first <style>
+  block below, and the markup follows its React components. See THIRD_PARTY_NOTICES.md.
+  The kanji use "MAGI Kanji Serif", a subset of Noto Serif JP (SIL Open Font License,
+  fonts/OFL.txt), embedded as base64 (source: fonts/magi-kanji-serif.woff2).
+-->
+<style>
+/* ---- TomaszRewak/MAGI assets/style.css, unchanged (MIT License, Copyright (c) 2023 Tomasz Rewak) ---- */
+html {
+    background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 20px, #140b02 20px, #140b02 40px);
+    min-height: 100vh;
+}
+
+body {
+    margin: 15px;
+}
+
+.system {
+    background: black;
+    border: 2px solid #ff8d00;
+    padding: 15px;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    margin: 0 auto;
+}
+
+.magi {
+    display: grid;
+    grid-template-columns:
+        /**/
+        [left-header-start]
+        /**/
+        20px
+        /**/
+        [casper-start status]
+        /**/
+        2fr
+        /**/
+        [left-header-end balthasar-start casper-balthasar-connection]
+        /**/
+        0.5fr
+        /**/
+        [casper-end title casper-melchior-connection]
+        /**/
+        1fr
+        /**/
+        [balthasar-melchior-connection melchior-start]
+        /**/
+        0.5fr
+        /**/
+        [right-header-start balthasar-end response]
+        /**/
+        2fr
+        /**/
+        [melchior-end]
+        /**/
+        20px
+        /**/
+        [right-header-end];
+    grid-template-rows:
+        /**/
+        20px
+        /**/
+        [header balthasar-start]
+        /**/
+        2fr
+        /**/
+        [status response]
+        /**/
+        2fr
+        /**/
+        [casper-start melchior-start casper-balthasar-connection balthasar-melchior-connection]
+        /**/
+        1fr
+        /**/
+        [balthasar-end title casper-melchior-connection]
+        /**/
+        3fr
+        /**/
+        [casper-end melchior-end]
+        /**/
+        20px;
+    aspect-ratio: 2 / 1;
+    container-type: size;
+    border: 2px solid #ff8d00;
+}
+
+.magi>.title {
+    grid-area: title / title;
+    color: #ff8d00;
+    text-align: center;
+    font-size: 9cqh;
+    font-weight: bold;
+}
+
+.magi>.header {
+    overflow: hidden;
+}
+
+.magi>.header>hr {
+    border: 2px solid #277547;
+    height: 4px;
+    margin: 2px;
+}
+
+.magi>.header>span {
+    color: #ff8d00;
+    font-size: 10cqh;
+    display: flex;
+    justify-content: center;
+    font-weight: bold;
+    transform: scaleX(2);
+}
+
+.magi>.header.left {
+    grid-area: header / left-header-start / auto / left-header-end;
+}
+
+.magi>.header.right {
+    grid-area: header / right-header-start / auto / right-header-end;
+}
+
+.magi>.system-status {
+    grid-area: status;
+    font-family: 'Helvetica';
+    font-family: 'Lucida Console';
+    color: #ff8d00;
+}
+
+.magi>.system-status>div {
+    font-size: 3cqh;
+    margin-left: 4cqw;
+    transform: scaleX(1.2);
+    transform-origin: left;
+}
+
+.magi>.system-status>div:first-child {
+    font-size: 6cqh;
+    margin-left: 0;
+}
+
+.magi>.response {
+    grid-area: response;
+    justify-self: flex-end;
+    align-self: center;
+    border: solid 2px;
+    padding: 2px;
+}
+
+.magi>.response>.inner {
+    white-space: nowrap;
+    border: solid 2px;
+    padding: 2px 10px;
+    font-size: 8cqh;
+    font-weight: bold;
+}
+
+.magi>.wise-man {
+    display: flex;
+    background: #ff8d00;
+    padding: 2px;
+    cursor: pointer;
+}
+
+.magi>.wise-man>.inner {
+    width: 100%;
+    height: 100%;
+    font-family: Helvetica;
+    font-size: 8cqh;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.magi>.wise-man.melchior {
+    grid-area: melchior-start / melchior-start / melchior-end / melchior-end;
+}
+
+.magi>.wise-man.melchior,
+.magi>.wise-man.melchior>.inner {
+    clip-path: polygon(35% 0, 100% 0, 100% 100%, 0 100%, 0 44%)
+}
+
+.magi>.wise-man.balthasar {
+    grid-area: balthasar-start / balthasar-start / balthasar-end / balthasar-end;
+}
+
+.magi>.wise-man.balthasar,
+.magi>.wise-man.balthasar>.inner {
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 75% 100%, 25% 100%, 0 80%);
+}
+
+.magi>.wise-man.casper {
+    grid-area: casper-start / casper-start / casper-end / casper-end;
+}
+
+.magi>.wise-man.casper,
+.magi>.wise-man.casper>.inner {
+    clip-path: polygon(0 0, 65% 0, 100% 44%, 100% 100%, 0 100%);
+}
+
+@keyframes flicker-animation {
+    0% {}
+
+    50% {
+        background: black;
+        color: black;
+        border-color: black;
+    }
+}
+
+.flicker {
+    animation: flicker-animation 0.25s infinite step-end;
+}
+
+
+.connection {
+    height: 10px;
+    background: #ff8d00;
+    align-self: center;
+    margin: -10%;
+}
+
+.connection.casper-balthasar {
+    grid-area: casper-balthasar-connection;
+    transform: rotate(-54deg);
+}
+
+.connection.casper-melchior {
+    grid-area: casper-melchior-connection;
+}
+
+.connection.balthasar-melchior {
+    grid-area: balthasar-melchior-connection;
+    transform: rotate(54deg);
+}
+
+.modal {
+    border: 2px solid #ff8d00;
+    color: #ff8d00;
+    font-family: 'Helvetica';
+    font-family: 'Lucida Console';
+    position: absolute;
+    background: black;
+    max-width: 60%;
+    top: 10%;
+    right: 10%;
+}
+
+.modal>.modal-header {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 2px solid #ff8d00;
+}
+
+.modal>.modal-header>.modal-title {
+    flex: 1;
+    padding: 5px;
+    background: repeating-linear-gradient(45deg, rgb(0 0 0) 0px, rgb(0 0 0) 10px, #211200 10px, #211200 20px);
+}
+
+.modal>.modal-header>.close {
+    padding: 5px;
+    border-left: 2px solid #ff8d00;
+    cursor: pointer;
+}
+
+.modal>.modal-body {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: 10px;
+    padding: 10px;
+}
+
+.input-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    color: #ff8d00;
+    font-family: 'Helvetica';
+    font-family: 'Lucida Console';
+    column-gap: 10px;
+    row-gap: 5px;
+    margin-top: 15px;
+}
+
+.input-container>input {
+    background: #1f1203;
+    border: 2px solid #ff8d00;
+    color: #ff8d00;
+}
+/* ---- end of TomaszRewak/MAGI style.css ---- */
+</style>
+<style>
+/* ---- MAGI-UI additions ---- */
+@font-face {
+    font-family: 'MAGI Kanji Serif';
+    src: url(data:font/woff2;base64,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) format('woff2');
+    font-weight: 100 900;
+    font-display: block;
+}
+
+/* Serif kanji. Upstream stretches the header kanji 2x, which squashes a serif face; 1.3x. */
+.magi>.header>span,
+.magi>.response>.inner {
+    font-family: 'MAGI Kanji Serif', 'Noto Serif CJK JP', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', serif;
+}
+.magi>.header>span { transform: scaleX(1.3); }
+
+/* The status lines in a monospace face even where Lucida Console is missing. */
+.magi>.system-status, .modal {
+    font-family: 'Lucida Console', 'DejaVu Sans Mono', Consolas, monospace;
+}
+
+/* Upstream's .modal is positioned against the .system box. */
+.modal { z-index: 10; max-height: 80%; overflow: auto; }
+.modal>.modal-body>div:nth-child(odd) { white-space: nowrap; }
+.modal>.modal-body>div:nth-child(even) { color: #ffd29a; overflow-wrap: anywhere; }
+.modal ul { margin: 0; padding-left: 1.2em; }
+.modal .note { color: #ff8d00; }
+
+/* No input row: drop files or click MAGI to load; click the headers and panels to read. */
+.magi>.header, .magi>.response, .magi>.title { cursor: pointer; }
+#pick-folder { display: none; }
+body.over .system { outline: 3px dashed #ff8d00; outline-offset: 6px; }
+</style>
+</head>
+<body>
+<div class="system" id="system">
+    <div class="magi" id="magi">
+        <div class="connection casper-balthasar"></div>
+        <div class="connection casper-melchior"></div>
+        <div class="connection balthasar-melchior"></div>
+        <div class="header left" id="agenda-header" title="agenda"><hr><hr><span>議 題</span><hr><hr></div>
+        <div class="header right" id="resolution-header" title="resolution"><hr><hr><span>決 議</span><hr><hr></div>
+        <div class="system-status" id="status"></div>
+        <div class="wise-man melchior" data-unit="melchior"><div class="inner">MELCHIOR • 1</div></div>
+        <div class="wise-man balthasar" data-unit="balthasar"><div class="inner">BALTHASAR • 2</div></div>
+        <div class="wise-man casper" data-unit="casper"><div class="inner">CASPER • 3</div></div>
+        <div class="response" id="response"><div class="inner" id="response-text">情 報</div></div>
+        <div class="title" id="magi-title" title="choose a results folder">MAGI</div>
+    </div>
+    <input type="file" id="pick-folder" webkitdirectory multiple>
+    <div class="modal" id="modal" hidden>
+        <div class="modal-header"><div class="modal-title" id="modal-title"></div><div class="close" id="modal-close">X</div></div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+'use strict';
+
+const UNITS = [
+    { key: 'melchior', name: 'melchior', label: 'MELCHIOR-1' },
+    { key: 'balthasar', name: 'balthasar', label: 'BALTHASAR-2' },
+    { key: 'casper', name: 'casper', label: 'CASPER-3' },
+];
+const MODES = ['deliberation', 'information'];
+const GRADES = ['normal', 'critical'];
+const VERDICTS = ['passed', 'rejected', 'on_hold', 'error'];
+const UNIT_VERDICTS = ['approve', 'reject', 'error'];
+
+// Upstream's colors (components/wise_man.js and response.js).
+const PANEL = { approve: '#52e691', reject: '#a41413', info: '#3caee0', error: 'black' };
+// The result box: 可決 / 否決 rather than upstream's 合意 / 拒絶, since a 2/3 pass is not an
+// agreement; 異常 rather than 誤差 for a failed unit. On hold (skill versions before 1.6.0)
+// shows 情報 with a note, as upstream's adapter did.
+const RESPONSE = {
+    passed: { text: '可 決', color: '#52e691' },
+    rejected: { text: '否 決', color: '#a41413' },
+    on_hold: { text: '情 報', color: '#3caee0' },
+    error: { text: '異 常', color: 'gray' },
+    information: { text: '情 報', color: '#3caee0' },
+};
+
+const TEXT = {
+    en: {
+        agendaTitle: 'agenda', resolutionTitle: 'resolution', followUps: 'follow-ups:', position: 'result:',
+        question: 'question:', file: 'file:', resolution: 'resolution:', verdict: 'verdict:', confidence: 'confidence:',
+        perspective: 'perspective:', rationale: 'rationale:', flip: 'would flip:', premise: 'doubted premise:',
+        recommend: 'recommendations:', answer: 'answer:', error: 'error:', followUp: 'follow-up', minority: 'minority:',
+        approve: 'approve', reject: 'reject', high: 'high', medium: 'medium', low: 'low',
+        normal: 'normal', critical: 'critical',
+        passed: 'passed', rejected: 'rejected', on_hold: 'on hold', information: 'information',
+        majority: n => `* passed by ${n}/3: a normal proposal needs two of the three aspects`,
+        unanimity: n => `* rejected with ${n}/3 approvals: a critical proposal needs all three`,
+        hold: '* on hold: a result of a skill version before 1.6.0 (no screen label, shown as 情報)',
+        unitError: '* a unit failed, so the resolution is an error rather than a vote of two',
+        invalid: m => `result format error: ${m}`, json: m => `JSON error: ${m}`,
+        waiting: 'Drop result files or a results folder on the page, or click MAGI to choose a folder.',
+    },
+    ko: {
+        agendaTitle: '안건', resolutionTitle: '결의', followUps: '[후속 안건]', position: '[결과]',
+        question: '[안건]', file: '[파일]', resolution: '[결의]', verdict: '[판정]', confidence: '[확신도]',
+        perspective: '[관점]', rationale: '[근거]', flip: '[뒤집힐 조건]', premise: '[의심하는 전제]',
+        recommend: '[권고]', answer: '[답]', error: '[오류]', followUp: '[후속', minority: '[소수 의견]',
+        approve: '승인', reject: '거부', high: '높음', medium: '중간', low: '낮음',
+        normal: '정상 등급', critical: '중대 등급',
+        passed: '가결', rejected: '부결', on_hold: '보류', information: '정보',
+        majority: n => `※ ${n}/3 가결: 정상 등급은 세 측면 중 둘이면 가결`,
+        unanimity: n => `※ ${n}/3 승인으로 부결: 중대 등급은 셋 모두 승인해야 함`,
+        hold: '※ 보류: 스킬 1.6.0 이전 버전의 결과 (대응하는 화면 라벨이 없어 情報로 표시)',
+        unitError: '※ 유닛 하나가 실패해서 두 유닛의 표로 정하지 않고 오류로 처리',
+        invalid: m => `결과 형식 오류: ${m}`, json: m => `JSON 형식 오류: ${m}`,
+        waiting: '결과 파일이나 결과 폴더를 화면에 끌어다 놓거나, MAGI를 눌러 폴더를 고르세요.',
+    },
+};
+const LANG = (new URLSearchParams(location.search).get('lang') || navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
+const T = TEXT[LANG];
+document.documentElement.lang = LANG;
+
+const PRESETS = [
+    [['code review', '코드 리뷰', '코드리뷰'], 'CODE_REVIEW'],
+    [['personal', '개인'], 'PERSONAL'],
+    [['ethic', '윤리'], 'ETHICS'],
+    [['original', '원작', '오리지널'], 'ORIGINAL'],
+    [['custom', '커스텀', '맞춤', '사용자'], 'CUSTOM'],
+    [['default', '기본'], 'DEFAULT'],
+];
+
+const $ = id => document.getElementById(id);
+function el(tag, attrs = {}, ...children) {
+    const node = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+    for (const c of children) if (c !== null && c !== undefined && c !== '') node.append(c);
+    return node;
+}
+
+// --- validation: the core rules of result.schema.json, version 2 ---
+class ResultError extends Error {}
+function validate(d) {
+    const fail = m => { throw new ResultError(m); };
+    if (!d || typeof d !== 'object' || Array.isArray(d)) fail('top level is not an object');
+    if (d.version !== 2) fail('version must be 2 (update the skill or this viewer)');
+    if (!MODES.includes(d.mode)) fail(`mode must be one of ${MODES.join(', ')}`);
+    if (typeof d.agenda !== 'string' || !d.agenda.trim()) fail('agenda is empty');
+    const units = d.units;
+    if (!units || typeof units !== 'object' || Object.keys(units).sort().join() !== 'balthasar,casper,melchior')
+        fail('units must contain exactly melchior, balthasar, casper');
+    if (d.mode === 'deliberation') {
+        if (!GRADES.includes(d.grade)) fail(`grade must be one of ${GRADES.join(', ')}`);
+        if (!VERDICTS.includes(d.verdict)) fail(`verdict must be one of ${VERDICTS.join(', ')}`);
+        for (const u of UNITS)
+            if (!UNIT_VERDICTS.includes((units[u.key] || {}).verdict)) fail(`units.${u.key}.verdict must be one of ${UNIT_VERDICTS.join(', ')}`);
+        if (d.follow_ups !== undefined) {
+            if (!Array.isArray(d.follow_ups) || d.follow_ups.length > 2) fail('follow_ups must be a list of at most 2');
+            d.follow_ups.forEach((f, i) => {
+                if (!f || typeof f.agenda !== 'string') fail(`follow_ups[${i}].agenda is missing`);
+                if (!VERDICTS.includes(f.verdict)) fail(`follow_ups[${i}].verdict must be one of ${VERDICTS.join(', ')}`);
+                if (f.units !== undefined) for (const u of UNITS)
+                    if (!f.units[u.key] || !UNIT_VERDICTS.includes(f.units[u.key].verdict))
+                        fail(`follow_ups[${i}].units.${u.key}.verdict must be one of ${UNIT_VERDICTS.join(', ')}`);
+            });
+        }
+    }
+}
+
+// --- status lines: CODE from the file name's time, EXTENTION the preset, PRIORITY the grade ---
+function presetCode(preset) {
+    let head = String(preset || '').trim().toLowerCase();
+    head = head.split('—')[0].split(' - ')[0].split(':')[0].split('(')[0];
+    for (const [words, code] of PRESETS)
+        if (words.some(w => head.startsWith(w) || head.includes(' ' + w))) return code;
+    return head ? 'CUSTOM' : '----';
+}
+function statusFields(d, file) {
+    if (!file) return { code: '473', ext: '????', priority: 'AAA' };   // upstream's look before a query
+    if (!d) return { code: '????', ext: '????', priority: '????' };
+    const m = /^\d{8}-(\d{4})\d{2}-/.exec(file.name);
+    const time = m ? m[1] : new Date(file.lastModified).toTimeString().slice(0, 5).replace(':', '');
+    return { code: time, ext: presetCode(d.preset), priority: { critical: 'AAA', normal: 'A' }[d.grade] || '----' };
+}
+
+const approvals = p => p.approve_count ?? UNITS.filter(u => p.units[u.key].verdict === 'approve').length;
+function noteFor(d) {
+    if (d.mode !== 'deliberation') return '';
+    const n = approvals(d);
+    if (d.verdict === 'on_hold') return T.hold;
+    if (d.verdict === 'error') return T.unitError;
+    if (d.verdict === 'passed' && n < 3) return T.majority(n);
+    if (d.verdict === 'rejected' && d.grade === 'critical' && (n === 1 || n === 2)) return T.unanimity(n);
+    return '';
+}
+
+// --- the screen ---
+let current = null;   // { data, file, error }
+
+function flicker(node) {
+    node.classList.add('flicker');
+    setTimeout(() => node.classList.remove('flicker'), 700);
+}
+
+function render(animate) {
+    const d = current && current.data;
+    const s = statusFields(d, current && current.file);
+    $('status').replaceChildren(
+        el('div', {}, `CODE:${s.code}`), el('div', {}, 'FILE:MAGI_SYS'), el('div', {}, `EXTENTION:${s.ext}`),
+        el('div', {}, 'EX_MODE:OFF'), el('div', {}, `PRIORITY:${s.priority}`));
+
+    const key = !current ? 'information' : current.error ? 'error' : d.mode === 'information' ? 'information' : d.verdict;
+    const r = RESPONSE[key];
+    const box = $('response');
+    box.style.color = r.color;
+    box.style.borderColor = r.color;
+    $('response-text').textContent = r.text;
+
+    for (const u of UNITS) {
+        const inner = document.querySelector(`.wise-man.${u.key}>.inner`);
+        const unit = d && d.units[u.key];
+        inner.style.background = !current ? PANEL.info : current.error ? PANEL.error
+            : d.mode === 'information' ? PANEL.info : PANEL[unit.verdict];
+        if (animate) flicker(inner);
+    }
+    if (animate) flicker(box);
+    if (openWindow) showWindow(openWindow);
+}
+
+const list = items => el('ul', {}, ...items.map(i => el('li', {}, String(i))));
+let openWindow = null;   // 'agenda', 'resolution', or a unit key
+function showWindow(kind) {
+    openWindow = kind;
+    const rows = [];
+    const add = (label, value) => {
+        if (value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length)) return;
+        rows.push(el('div', {}, label), el('div', {}, Array.isArray(value) ? list(value) : String(value)));
+    };
+    const unit = UNITS.find(x => x.key === kind);
+    $('modal-title').textContent = unit ? unit.name : kind === 'agenda' ? T.agendaTitle : T.resolutionTitle;
+    if (!current) {
+        rows.push(el('div', {}), el('div', {}, T.waiting));
+    } else if (current.error) {
+        add(T.file, current.file.name);
+        add(T.error, current.error);
+    } else {
+        const d = current.data;
+        if (kind === 'agenda') {
+            add(T.question, d.agenda);
+            add(T.followUps, (d.follow_ups || []).map((f, i) => `${i + 1}. ${f.agenda}`));
+            add(T.file, current.file.name);
+            if (files.length > 1) add(T.position, `${files.indexOf(current.file) + 1} / ${files.length}  (← →)`);
+        } else if (kind === 'resolution') {
+            if (d.mode === 'deliberation') {
+                add(T.resolution, `${T[d.verdict] || d.verdict} (${approvals(d)}/3) · ${T[d.grade]}${d.grade_raised ? ' ↑' : ''}`);
+                const note = noteFor(d);
+                if (note) rows.push(el('div', {}), el('div', { class: 'note' }, note));
+                (d.follow_ups || []).forEach((f, i) => {
+                    const label = LANG === 'ko' ? `${T.followUp} ${i + 1}]` : `${T.followUp} ${i + 1}:`;
+                    add(label, `${T[f.verdict] || f.verdict} (${approvals(f)}/3)${f.grade ? ' · ' + T[f.grade] : ''}`);
+                });
+                add(T.minority, d.minority);
+            } else {
+                add(T.resolution, T.information);
+            }
+        } else if (d.mode === 'deliberation') {
+            const u = d.units[kind];
+            add(T.perspective, u.perspective);
+            add(T.verdict, [T[u.verdict] || u.verdict, u.confidence ? `${T.confidence.replace(/[\[\]:]/g, '')} ${T[u.confidence] || u.confidence}` : ''].filter(Boolean).join(' · '));
+            add(T.error, u.error);
+            add(T.rationale, u.rationale);
+            add(T.flip, u.flip_condition);
+            add(T.premise, u.doubted_premise);
+            add(T.recommend, u.recommendations);
+            (d.follow_ups || []).forEach((f, i) => {
+                const fu = f.units && f.units[kind];
+                if (!fu) return;
+                const label = LANG === 'ko' ? `${T.followUp} ${i + 1}]` : `${T.followUp} ${i + 1}:`;
+                add(label, [f.agenda, `${T[fu.verdict] || fu.verdict}${fu.confidence ? ' · ' + (T[fu.confidence] || fu.confidence) : ''}`, ...(fu.rationale || []), fu.error || ''].filter(Boolean));
+            });
+        } else {
+            const u = d.units[kind];
+            add(T.perspective, u.perspective);
+            add(T.answer, u.answer);
+        }
+    }
+    $('modal-body').replaceChildren(...rows);
+    $('modal').hidden = false;
+}
+
+// --- loading ---
+let files = [];
+function setFiles(incoming) {
+    files = [...incoming].filter(f => f.name.toLowerCase().endsWith('.json'))
+        .sort((a, b) => (b.name > a.name) - (b.name < a.name) || b.lastModified - a.lastModified);
+    if (files.length) load(files[0]);
+}
+async function load(file) {
+    let data, error = null;
+    try {
+        data = JSON.parse(await file.text());
+        validate(data);
+    } catch (e) {
+        if (e instanceof SyntaxError) error = T.json(e.message);
+        else if (e instanceof ResultError) error = T.invalid(e.message);
+        else throw e;
+        data = null;
+    }
+    current = { data, file, error };
+    render(true);
+}
+
+$('pick-folder').addEventListener('change', e => setFiles(e.target.files));
+$('magi-title').addEventListener('click', () => $('pick-folder').click());
+$('agenda-header').addEventListener('click', () => showWindow('agenda'));
+$('resolution-header').addEventListener('click', () => showWindow('resolution'));
+$('response').addEventListener('click', () => showWindow('resolution'));
+$('modal-close').addEventListener('click', () => { openWindow = null; $('modal').hidden = true; });
+document.querySelectorAll('.wise-man').forEach(w => w.addEventListener('click', () => showWindow(w.dataset.unit)));
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { openWindow = null; $('modal').hidden = true; return; }
+    if (!current || files.length < 2 || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    const i = files.indexOf(current.file) + (e.key === 'ArrowRight' ? 1 : -1);
+    if (i >= 0 && i < files.length) load(files[i]);
+});
+document.addEventListener('dragover', e => { e.preventDefault(); document.body.classList.add('over'); });
+document.addEventListener('dragleave', () => document.body.classList.remove('over'));
+document.addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('over'); setFiles(e.dataTransfer.files); });
+render(false);
+</script>
+</body>
+</html>

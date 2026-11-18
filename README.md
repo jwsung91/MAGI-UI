@@ -1,89 +1,85 @@
 # MAGI-UI
 
-A local viewer that shows results of the [MAGI skill](https://github.com/jwsung91/MAGI) on the screen of [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI).
+A viewer for results of the [MAGI skill](https://github.com/jwsung91/MAGI): one HTML file, opened in a browser. No server, no install, no network.
 
-> **Unofficial.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. The screen comes from TomaszRewak/MAGI, a fan recreation, and is downloaded at install time; this repository contains none of its graphics. **Local use only:** the server binds to `127.0.0.1`; do not expose it to a network. If a rights holder asks, this repository will be taken down.
+> **Unofficial fan work.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. Third-party licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). If a rights holder asks, it will be taken down.
 
-## How it works
-
-TomaszRewak/MAGI is a Dash app whose `ai.py` asks OpenAI. MAGI-UI keeps the original screen and swaps the data source:
-
-| File | What it does |
+| Critical proposal rejected at 2/3 | A unit's opinion (Korean result) |
 |---|---|
-| `ai.py` | Drop-in replacement with the same function names. Reads a MAGI result JSON instead of calling OpenAI. |
-| `main.py.patch` | Small callback patch: reload on every Enter, use the skill's resolution for the result panel, show the proposal text in the modal, bind to `127.0.0.1` with debug off. |
-| `setup.sh` | Fetches upstream at a pinned commit, applies the two changes above, creates a virtualenv, copies samples. |
-| `requirements.lock` | Tested dependency versions (Python 3.13, dash 2.18.2). |
-| `samples/` | Result files for every outcome. |
-| `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json). |
+| ![A critical proposal rejected at 2/3: BALTHASAR-2 red, the others green, result 否決](docs/screenshot-rejected-critical.png) | ![The BALTHASAR-2 window over the screen: agenda, resolution, rationale, follow-ups](docs/screenshot-modal.png) |
 
-The upstream graphics (`components/*.js`, `assets/style.css`) and layout are not modified.
+Left: `samples/09_rejected_critical_2of3.json`. Right: the same result with BALTHASAR-2 clicked, Korean labels.
 
-## Install and run
+## Use
 
-Requires `git`, Python 3 (tested on 3.13), and a shell.
+1. Open `magi-ui.html` in a browser (Chrome, Edge, Firefox, Safari).
+2. Drop result files or the results folder on the page, or click **MAGI** in the middle to choose the folder. The newest result opens; the left and right arrow keys move between the results loaded.
+3. Click to read:
 
-```bash
-git clone https://github.com/jwsung91/MAGI-UI.git
-cd MAGI-UI
-bash setup.sh            # installs into ./MAGI (or pass a path)
-cd MAGI
-MAGI_RESULTS_DIR=results .venv/bin/python main.py
-```
+| Click | Window |
+|---|---|
+| 議題 | The agenda (the question), the follow-up proposals, the file |
+| 決議, or the result box | The resolution, approvals and grade, a note where the label alone could mislead, the follow-ups' resolutions, the minority opinion |
+| A unit panel | That unit's verdict, confidence, rationale, what would flip it, doubted premise, recommendations, and its votes on follow-ups |
 
-Open `http://127.0.0.1:8050`, type a file name (e.g. `02_passed_2of3.json`) or `latest` in the **question** field, and press Enter. Pressing Enter again reloads the file. Click a unit panel to see that unit's opinion.
+Esc or X closes the window. There are no other controls on the screen.
 
-| Variable | Default | Meaning |
-|---|---|---|
-| `MAGI_RESULTS_DIR` | `results` | Folder the viewer reads |
-| `MAGI_UI_LANG` | `en` | Modal labels: `en` or `ko` |
-| `MAGI_PORT` | `8050` | Port |
-
-The **access code** field is upstream's OpenAI key box and is not used.
+Labels follow the browser language (English or Korean); add `?lang=ko` or `?lang=en` to the address to choose. Files are read in the browser with the File API and go nowhere. To see a result written after you loaded the folder, load it again.
 
 ## Connect the skill
 
-In Claude Code, the MAGI skill writes each result as JSON when `MAGI_RESULTS_DIR` is set. Point it at the viewer's folder:
+The MAGI skill writes each result as JSON when `MAGI_RESULTS_DIR` is set (Claude Code, Codex, Gemini CLI, and other hosts that run shell commands):
 
 ```bash
-export MAGI_RESULTS_DIR=/path/to/MAGI-UI/MAGI/results
+export MAGI_RESULTS_DIR=~/magi-results
 claude
 # /magi <your proposal>   → the result file path is printed at the end
 ```
 
-Then type `latest` in the viewer and press Enter.
+Then drop `~/magi-results` on the viewer, or click MAGI and choose it.
 
-## Mapping
+## What the screen shows
 
-| Skill resolution | Result panel |
+| Part | Shows |
 |---|---|
-| passed | passed (a 2/3 pass leaves the rejecting unit red; the modal notes it) |
-| rejected | rejected (a critical proposal rejected with 1 or 2 approvals leaves the approving units green; the modal notes that all three were needed, see `09_rejected_critical_2of3.json`) |
-| on hold | info (no matching label; the modal says it is on hold). Only results of skill versions before 1.6.0; from 1.6.0 a critical split is rejected |
-| error | error (unit error, malformed JSON, or invalid values) |
-| information mode | info |
+| Headers | 議題 / 決議 (agenda / resolution) |
+| Result box | The resolution: 可決 / 否決 / 情報 / 異常 (below) |
+| Unit panels | Each unit's verdict: green approve, red reject, black error; blue in information mode |
+| Status lines | Filled from the result (below) |
+| Windows on click | See Use above |
 
-| Unit verdict | Unit panel |
+| Resolution | Label | Note |
+|---|---|---|
+| passed | 可決 | For a 2/3 pass: a normal proposal needs two of the three aspects |
+| rejected | 否決 | For a critical proposal with 1 or 2 approvals: it needs all three (skill 1.6.0 on) |
+| on hold | 情報 | Results of skill versions before 1.6.0 only |
+| error | 異常 | A unit failed, so there was no vote of two |
+| information mode | 情報 | |
+
+可決 / 否決 (passed / rejected) rather than "agreement / refusal": from skill 1.6.0 a resolution counts three aspects, and a 2/3 pass is not an agreement.
+
+| Status line | Shows |
 |---|---|
-| approve | green |
-| reject | red |
-| error | black |
+| `CODE` | The time in the result file name (`YYYYMMDD-HHMMSS-…` gives `HHMM`), else the file's modified time |
+| `FILE` | `MAGI_SYS`, fixed |
+| `EXTENTION` | The preset: `DEFAULT`, `ETHICS`, `CODE_REVIEW`, `PERSONAL`, `ORIGINAL`, `CUSTOM` |
+| `EX_MODE` | `OFF`, fixed |
+| `PRIORITY` | The grade: `AAA` critical, `A` normal, `----` information mode |
 
-The panels show the main proposal. If the result records how each unit voted on follow-up proposals (`follow_ups[].units`), a unit's modal also lists each follow-up with its resolution and that unit's verdict, confidence, and rationale (see `08_follow_ups.json`). Older results without `follow_ups[].units` still load; their follow-ups are simply not shown. The rest of the resolution (grade, minority opinion, and the debate round of results before 1.6.0) is in the skill's Markdown output.
+A file that is not valid JSON, or that breaks the core rules of the result format (version 2, the three units, the verdict values), is shown as 異常 with the reason.
 
-## Tested
+## Files
 
-- Fresh `setup.sh` install at the pinned commit.
-- Every sample through the Dash callbacks, plus modal open/close in headless Chrome.
-- Follow-up votes: `08_follow_ups.json` through the callbacks, and rejection of malformed `follow_ups[].units` (missing unit, unknown verdict, more than two follow-ups).
-- Labels in `en` and `ko`.
+| File | What it is |
+|---|---|
+| `magi-ui.html` | The viewer. HTML, CSS and JavaScript in one file, with the kanji font embedded |
+| `samples/` | Result files for every outcome, including `99_invalid.json` to show the error display |
+| `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json) |
+| `fonts/` | The kanji font embedded in the viewer: 議題決可否情報状態異常 cut from Noto Serif JP, and its license |
+| `docs/` | The screenshots above |
 
-## Notes
-
-- Upstream is pinned to `98a4d0184b1b0013e2216689c770127b6aff2efc` (2023-10-11).
-- dash 2.9.3 and earlier are affected by CVE-2024-21485; this lock uses 2.18.2. dash 2.x needs `setuptools<81` (`pkg_resources`).
-- Units are identified by upstream's personality strings (scientist / mother / woman).
+The kanji labels are drawn with that font so they look the same on every machine. To change a label, cut the font again to the new characters (for example with `pyftsubset` from fontTools) and replace the base64 string in `magi-ui.html`.
 
 ## License
 
-MIT for the code in this repository ([LICENSE](LICENSE)). Upstream's license and notes are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MIT for the code in this repository ([LICENSE](LICENSE)). Embedded third-party parts keep their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

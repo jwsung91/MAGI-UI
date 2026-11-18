@@ -2,7 +2,7 @@
 
 ## TomaszRewak/MAGI
 
-`setup.sh` downloads [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI) at commit `98a4d0184b1b0013e2216689c770127b6aff2efc`. `ai.py` replaces its `ai.py`, and `main.py.patch` modifies its `main.py`; the patch contains short excerpts of that file as context lines. That project is distributed under the following license:
+The screen is the one of [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI). `magi-ui.html` includes its `assets/style.css` (commit `98a4d0184b1b0013e2216689c770127b6aff2efc`) unchanged in its first `<style>` block, and its markup follows that project's React components (`magi.js`, `header.js`, `status.js`, `wise_man.js`, `response.js`, `modal.js`). That project is distributed under the following license:
 
 ```
 MIT License
@@ -28,4 +28,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-Its screen design recreates the MAGI screen from *Neon Genesis Evangelion*. The MIT license above covers that project's code; it does not grant any rights in the original series or its designs.
+## Noto Serif JP
+
+`fonts/magi-kanji-serif.woff2`, embedded in `magi-ui.html` as base64, is a subset of [Noto Serif JP](https://github.com/notofonts/noto-cjk) (Copyright 2012 Google Inc.), instanced at weight 800 and cut to the eleven kanji the screen shows (議題決可否情報状態異常), renamed "MAGI Kanji Serif". It is distributed under the SIL Open Font License, Version 1.1; the full text is in `fonts/OFL.txt`.
