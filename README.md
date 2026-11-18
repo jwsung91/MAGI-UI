@@ -1,8 +1,8 @@
 # MAGI-UI
 
-A viewer for results of the [MAGI skill](https://github.com/jwsung91/MAGI) on the screen of [TomaszRewak/MAGI](https://github.com/TomaszRewak/MAGI): one HTML file, opened in a browser. No server, no install, no network.
+A viewer for results of the [MAGI skill](https://github.com/jwsung91/MAGI): one HTML file, opened in a browser. No server, no install, no network.
 
-> **Unofficial.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. The screen is TomaszRewak/MAGI's fan recreation (MIT License): its stylesheet is included unchanged and its layout is followed; the data source, labels and the rest of the code are this repository's. If a rights holder asks, it will be taken down.
+> **Unofficial fan work.** Not affiliated with *Neon Genesis Evangelion* or its rights holders. Third-party licenses are in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). If a rights holder asks, it will be taken down.
 
 | Critical proposal rejected at 2/3 | A unit's opinion (Korean result) |
 |---|---|
@@ -32,16 +32,14 @@ Then choose `~/magi-results` as the results folder.
 
 ## What the screen shows
 
-The layout is TomaszRewak/MAGI's. What changed:
-
-| Part | Upstream | Here |
-|---|---|---|
-| Headers | 質問 / 解決 (question / answer) | 議題 / 決議 (agenda / resolution), in a serif face, stretched 1.3x instead of 2x |
-| Result box | 合意 / 拒絶 / 情報 / 状態 / 誤差 | 可決 / 否決 / 情報 / 異常 (below) |
-| Unit panels | Colored by an OpenAI answer | Colored by each unit's verdict: green approve, red reject, black error; blue in information mode |
-| Status lines | Fixed, but EXTENTION | Filled from the result (below) |
-| Window on click | The raw answer | The agenda, the resolution with a note where the label alone could mislead, and the unit's opinion |
-| Input row | Access code and question | Results folder, result files, and the list of results |
+| Part | Shows |
+|---|---|
+| Headers | 議題 / 決議 (agenda / resolution) |
+| Result box | The resolution: 可決 / 否決 / 情報 / 異常 (below) |
+| Unit panels | Each unit's verdict: green approve, red reject, black error; blue in information mode |
+| Status lines | Filled from the result (below) |
+| Window on click | The agenda, the resolution with a note where the label alone could mislead, and the unit's opinion |
+| Input row | Results folder, result files, and the list of results |
 
 | Resolution | Label | Note |
 |---|---|---|
@@ -67,7 +65,7 @@ A file that is not valid JSON, or that breaks the core rules of the result forma
 
 | File | What it is |
 |---|---|
-| `magi-ui.html` | The viewer. HTML, CSS and JavaScript in one file, with TomaszRewak/MAGI's stylesheet and the kanji font embedded |
+| `magi-ui.html` | The viewer. HTML, CSS and JavaScript in one file, with the kanji font embedded |
 | `samples/` | Result files for every outcome, including `99_invalid.json` to show the error display |
 | `result.schema.json` | Copy of the result format (version 2). The source of truth is in the [MAGI repo](https://github.com/jwsung91/MAGI/blob/main/skills/magi/result.schema.json) |
 | `fonts/` | The kanji font embedded in the viewer: 議題決可否情報状態異常 cut from Noto Serif JP, and its license |
@@ -77,4 +75,4 @@ The kanji labels are drawn with that font so they look the same on every machine
 
 ## License
 
-MIT for the code in this repository ([LICENSE](LICENSE)). The embedded stylesheet of TomaszRewak/MAGI is under its MIT License, and the embedded font under the SIL Open Font License; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+MIT for the code in this repository ([LICENSE](LICENSE)). Embedded third-party parts keep their own licenses; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
