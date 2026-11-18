@@ -8,15 +8,23 @@ A viewer for results of the [MAGI skill](https://github.com/jwsung91/MAGI): one 
 |---|---|
 | ![A critical proposal rejected at 2/3: BALTHASAR-2 red, the others green, result 否決](docs/screenshot-rejected-critical.png) | ![The BALTHASAR-2 window over the screen: agenda, resolution, rationale, follow-ups](docs/screenshot-modal.png) |
 
-Left: `samples/09_rejected_critical_2of3.json`. Right: a real result of the skill (1.6.0, the Korean chatbot fixture, passed 2/3) with BALTHASAR-2 clicked.
+Left: `samples/09_rejected_critical_2of3.json`. Right: the same result with BALTHASAR-2 clicked, Korean labels.
 
 ## Use
 
 1. Open `magi-ui.html` in a browser (Chrome, Edge, Firefox, Safari).
-2. Click **results folder** and choose the folder the skill writes to, or **result files**, or drop result files on the page. The newest result opens; the list at the bottom switches between them.
-3. Click a unit panel: a window shows the agenda, the resolution, and that unit's verdict, confidence, rationale, what would flip it, doubted premise, recommendations, votes on follow-up proposals, and the minority opinion.
+2. Drop result files or the results folder on the page, or click **MAGI** in the middle to choose the folder. The newest result opens; the left and right arrow keys move between the results loaded.
+3. Click to read:
 
-Labels follow the browser language (English or Korean); add `?lang=ko` or `?lang=en` to the address to choose. Files are read in the browser with the File API and go nowhere. To see a result written after you chose the folder, choose the folder again.
+| Click | Window |
+|---|---|
+| 議題 | The agenda (the question), the follow-up proposals, the file |
+| 決議, or the result box | The resolution, approvals and grade, a note where the label alone could mislead, the follow-ups' resolutions, the minority opinion |
+| A unit panel | That unit's verdict, confidence, rationale, what would flip it, doubted premise, recommendations, and its votes on follow-ups |
+
+Esc or X closes the window. There are no other controls on the screen.
+
+Labels follow the browser language (English or Korean); add `?lang=ko` or `?lang=en` to the address to choose. Files are read in the browser with the File API and go nowhere. To see a result written after you loaded the folder, load it again.
 
 ## Connect the skill
 
@@ -28,7 +36,7 @@ claude
 # /magi <your proposal>   → the result file path is printed at the end
 ```
 
-Then choose `~/magi-results` as the results folder.
+Then drop `~/magi-results` on the viewer, or click MAGI and choose it.
 
 ## What the screen shows
 
@@ -38,8 +46,7 @@ Then choose `~/magi-results` as the results folder.
 | Result box | The resolution: 可決 / 否決 / 情報 / 異常 (below) |
 | Unit panels | Each unit's verdict: green approve, red reject, black error; blue in information mode |
 | Status lines | Filled from the result (below) |
-| Window on click | The agenda, the resolution with a note where the label alone could mislead, and the unit's opinion |
-| Input row | Results folder, result files, and the list of results |
+| Windows on click | See Use above |
 
 | Resolution | Label | Note |
 |---|---|---|

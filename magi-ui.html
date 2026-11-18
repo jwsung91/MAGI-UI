@@ -6,7 +6,9 @@
 <title>MAGI-UI</title>
 <!--
   MAGI-UI: a single-file viewer for results of the MAGI skill (result format version 2).
-  Open this file in a browser, then choose a results folder or drop result files on the page.
+  Open this file in a browser and drop result files or a results folder on the page, or click MAGI
+  to choose a folder. Click 議題 for the agenda, 決議 for the resolution, a unit for its opinion;
+  the left and right arrow keys move between the results loaded.
   Files are read locally with the File API; nothing is sent anywhere.
 
   The screen is the one of TomaszRewak/MAGI (https://github.com/TomaszRewak/MAGI, MIT License,
@@ -321,7 +323,7 @@ body {
 .magi>.header>span { transform: scaleX(1.3); }
 
 /* The status lines in a monospace face even where Lucida Console is missing. */
-.magi>.system-status, .modal, .input-container {
+.magi>.system-status, .modal {
     font-family: 'Lucida Console', 'DejaVu Sans Mono', Consolas, monospace;
 }
 
@@ -332,21 +334,9 @@ body {
 .modal ul { margin: 0; padding-left: 1.2em; }
 .modal .note { color: #ff8d00; }
 
-/* The input row: a results folder, files, and the list of results. */
-.input-container { grid-template-columns: auto auto auto 1fr; align-items: center; }
-.input-container>label.pick {
-    border: 2px solid #ff8d00;
-    padding: 1px 8px;
-    cursor: pointer;
-}
-.input-container input[type=file] { display: none; }
-.input-container>select {
-    background: #1f1203;
-    border: 2px solid #ff8d00;
-    color: #ff8d00;
-    font: inherit;
-    min-width: 0;
-}
+/* No input row: drop files or click MAGI to load; click the headers and panels to read. */
+.magi>.header, .magi>.response, .magi>.title { cursor: pointer; }
+#pick-folder { display: none; }
 body.over .system { outline: 3px dashed #ff8d00; outline-offset: 6px; }
 </style>
 </head>
@@ -356,21 +346,16 @@ body.over .system { outline: 3px dashed #ff8d00; outline-offset: 6px; }
         <div class="connection casper-balthasar"></div>
         <div class="connection casper-melchior"></div>
         <div class="connection balthasar-melchior"></div>
-        <div class="header left"><hr><hr><span>議 題</span><hr><hr></div>
-        <div class="header right"><hr><hr><span>決 議</span><hr><hr></div>
+        <div class="header left" id="agenda-header" title="agenda"><hr><hr><span>議 題</span><hr><hr></div>
+        <div class="header right" id="resolution-header" title="resolution"><hr><hr><span>決 議</span><hr><hr></div>
         <div class="system-status" id="status"></div>
         <div class="wise-man melchior" data-unit="melchior"><div class="inner">MELCHIOR • 1</div></div>
         <div class="wise-man balthasar" data-unit="balthasar"><div class="inner">BALTHASAR • 2</div></div>
         <div class="wise-man casper" data-unit="casper"><div class="inner">CASPER • 3</div></div>
         <div class="response" id="response"><div class="inner" id="response-text">情 報</div></div>
-        <div class="title">MAGI</div>
+        <div class="title" id="magi-title" title="choose a results folder">MAGI</div>
     </div>
-    <div class="input-container">
-        <label class="pick"><input type="file" id="pick-folder" webkitdirectory multiple><span id="label-folder"></span></label>
-        <label class="pick"><input type="file" id="pick-files" accept=".json,application/json" multiple><span id="label-files"></span></label>
-        <span id="label-results"></span>
-        <select id="results" aria-label="results"></select>
-    </div>
+    <input type="file" id="pick-folder" webkitdirectory multiple>
     <div class="modal" id="modal" hidden>
         <div class="modal-header"><div class="modal-title" id="modal-title"></div><div class="close" id="modal-close">X</div></div>
         <div class="modal-body" id="modal-body"></div>
@@ -405,7 +390,7 @@ const RESPONSE = {
 
 const TEXT = {
     en: {
-        folder: 'results folder', files: 'result files', results: 'result:', none: '— none —',
+        agendaTitle: 'agenda', resolutionTitle: 'resolution', followUps: 'follow-ups:', position: 'result:',
         question: 'question:', file: 'file:', resolution: 'resolution:', verdict: 'verdict:', confidence: 'confidence:',
         perspective: 'perspective:', rationale: 'rationale:', flip: 'would flip:', premise: 'doubted premise:',
         recommend: 'recommendations:', answer: 'answer:', error: 'error:', followUp: 'follow-up', minority: 'minority:',
@@ -417,10 +402,10 @@ const TEXT = {
         hold: '* on hold: a result of a skill version before 1.6.0 (no screen label, shown as 情報)',
         unitError: '* a unit failed, so the resolution is an error rather than a vote of two',
         invalid: m => `result format error: ${m}`, json: m => `JSON error: ${m}`,
-        waiting: 'Choose a results folder or drop result files on the page.',
+        waiting: 'Drop result files or a results folder on the page, or click MAGI to choose a folder.',
     },
     ko: {
-        folder: '결과 폴더', files: '결과 파일', results: '결과:', none: '— 없음 —',
+        agendaTitle: '안건', resolutionTitle: '결의', followUps: '[후속 안건]', position: '[결과]',
         question: '[안건]', file: '[파일]', resolution: '[결의]', verdict: '[판정]', confidence: '[확신도]',
         perspective: '[관점]', rationale: '[근거]', flip: '[뒤집힐 조건]', premise: '[의심하는 전제]',
         recommend: '[권고]', answer: '[답]', error: '[오류]', followUp: '[후속', minority: '[소수 의견]',
@@ -432,7 +417,7 @@ const TEXT = {
         hold: '※ 보류: 스킬 1.6.0 이전 버전의 결과 (대응하는 화면 라벨이 없어 情報로 표시)',
         unitError: '※ 유닛 하나가 실패해서 두 유닛의 표로 정하지 않고 오류로 처리',
         invalid: m => `결과 형식 오류: ${m}`, json: m => `JSON 형식 오류: ${m}`,
-        waiting: '결과 폴더를 고르거나 결과 파일을 화면에 끌어다 놓으세요.',
+        waiting: '결과 파일이나 결과 폴더를 화면에 끌어다 놓거나, MAGI를 눌러 폴더를 고르세요.',
     },
 };
 const LANG = (new URLSearchParams(location.search).get('lang') || navigator.language || 'en').toLowerCase().startsWith('ko') ? 'ko' : 'en';
@@ -514,7 +499,6 @@ function noteFor(d) {
 
 // --- the screen ---
 let current = null;   // { data, file, error }
-let openUnit = null;
 
 function flicker(node) {
     node.classList.add('flicker');
@@ -543,49 +527,64 @@ function render(animate) {
         if (animate) flicker(inner);
     }
     if (animate) flicker(box);
-    if (openUnit) showModal(openUnit);
+    if (openWindow) showWindow(openWindow);
 }
 
 const list = items => el('ul', {}, ...items.map(i => el('li', {}, String(i))));
-function showModal(key) {
-    openUnit = key;
-    const u = UNITS.find(x => x.key === key);
+let openWindow = null;   // 'agenda', 'resolution', or a unit key
+function showWindow(kind) {
+    openWindow = kind;
     const rows = [];
     const add = (label, value) => {
         if (value === undefined || value === null || value === '' || (Array.isArray(value) && !value.length)) return;
         rows.push(el('div', {}, label), el('div', {}, Array.isArray(value) ? list(value) : String(value)));
     };
-    $('modal-title').textContent = u.name;
+    const unit = UNITS.find(x => x.key === kind);
+    $('modal-title').textContent = unit ? unit.name : kind === 'agenda' ? T.agendaTitle : T.resolutionTitle;
     if (!current) {
-        add(T.question, T.waiting);
+        rows.push(el('div', {}), el('div', {}, T.waiting));
     } else if (current.error) {
         add(T.file, current.file.name);
         add(T.error, current.error);
     } else {
-        const d = current.data, unit = d.units[key];
-        add(T.question, d.agenda);
-        add(T.file, current.file.name);
-        if (d.mode === 'deliberation') {
-            add(T.resolution, `${T[d.verdict] || d.verdict} (${approvals(d)}/3) · ${T[d.grade]}${d.grade_raised ? ' ↑' : ''}`);
-            const note = noteFor(d);
-            if (note) rows.push(el('div', {}), el('div', { class: 'note' }, note));
-            add(T.perspective, unit.perspective);
-            add(T.verdict, [T[unit.verdict] || unit.verdict, unit.confidence ? `${T.confidence.replace(/[\[\]:]/g, '')} ${T[unit.confidence] || unit.confidence}` : ''].filter(Boolean).join(' · '));
-            add(T.error, unit.error);
-            add(T.rationale, unit.rationale);
-            add(T.flip, unit.flip_condition);
-            add(T.premise, unit.doubted_premise);
-            add(T.recommend, unit.recommendations);
+        const d = current.data;
+        if (kind === 'agenda') {
+            add(T.question, d.agenda);
+            add(T.followUps, (d.follow_ups || []).map((f, i) => `${i + 1}. ${f.agenda}`));
+            add(T.file, current.file.name);
+            if (files.length > 1) add(T.position, `${files.indexOf(current.file) + 1} / ${files.length}  (← →)`);
+        } else if (kind === 'resolution') {
+            if (d.mode === 'deliberation') {
+                add(T.resolution, `${T[d.verdict] || d.verdict} (${approvals(d)}/3) · ${T[d.grade]}${d.grade_raised ? ' ↑' : ''}`);
+                const note = noteFor(d);
+                if (note) rows.push(el('div', {}), el('div', { class: 'note' }, note));
+                (d.follow_ups || []).forEach((f, i) => {
+                    const label = LANG === 'ko' ? `${T.followUp} ${i + 1}]` : `${T.followUp} ${i + 1}:`;
+                    add(label, `${T[f.verdict] || f.verdict} (${approvals(f)}/3)${f.grade ? ' · ' + T[f.grade] : ''}`);
+                });
+                add(T.minority, d.minority);
+            } else {
+                add(T.resolution, T.information);
+            }
+        } else if (d.mode === 'deliberation') {
+            const u = d.units[kind];
+            add(T.perspective, u.perspective);
+            add(T.verdict, [T[u.verdict] || u.verdict, u.confidence ? `${T.confidence.replace(/[\[\]:]/g, '')} ${T[u.confidence] || u.confidence}` : ''].filter(Boolean).join(' · '));
+            add(T.error, u.error);
+            add(T.rationale, u.rationale);
+            add(T.flip, u.flip_condition);
+            add(T.premise, u.doubted_premise);
+            add(T.recommend, u.recommendations);
             (d.follow_ups || []).forEach((f, i) => {
-                const fu = f.units && f.units[key];
+                const fu = f.units && f.units[kind];
                 if (!fu) return;
                 const label = LANG === 'ko' ? `${T.followUp} ${i + 1}]` : `${T.followUp} ${i + 1}:`;
-                add(label, [f.agenda, `${T[f.verdict] || f.verdict} (${approvals(f)}/3) — ${T[fu.verdict] || fu.verdict}${fu.confidence ? ' · ' + (T[fu.confidence] || fu.confidence) : ''}`, ...(fu.rationale || []), fu.error || ''].filter(Boolean));
+                add(label, [f.agenda, `${T[fu.verdict] || fu.verdict}${fu.confidence ? ' · ' + (T[fu.confidence] || fu.confidence) : ''}`, ...(fu.rationale || []), fu.error || ''].filter(Boolean));
             });
-            add(T.minority, d.minority);
         } else {
-            add(T.perspective, unit.perspective);
-            add(T.answer, unit.answer);
+            const u = d.units[kind];
+            add(T.perspective, u.perspective);
+            add(T.answer, u.answer);
         }
     }
     $('modal-body').replaceChildren(...rows);
@@ -597,7 +596,6 @@ let files = [];
 function setFiles(incoming) {
     files = [...incoming].filter(f => f.name.toLowerCase().endsWith('.json'))
         .sort((a, b) => (b.name > a.name) - (b.name < a.name) || b.lastModified - a.lastModified);
-    $('results').replaceChildren(...(files.length ? files.map((f, i) => el('option', { value: String(i) }, f.name)) : [el('option', {}, T.none)]));
     if (files.length) load(files[0]);
 }
 async function load(file) {
@@ -615,15 +613,19 @@ async function load(file) {
     render(true);
 }
 
-$('label-folder').textContent = T.folder;
-$('label-files').textContent = T.files;
-$('label-results').textContent = T.results;
-$('results').replaceChildren(el('option', {}, T.none));
 $('pick-folder').addEventListener('change', e => setFiles(e.target.files));
-$('pick-files').addEventListener('change', e => setFiles(e.target.files));
-$('results').addEventListener('change', e => { const f = files[Number(e.target.value)]; if (f) load(f); });
-$('modal-close').addEventListener('click', () => { openUnit = null; $('modal').hidden = true; });
-document.querySelectorAll('.wise-man').forEach(w => w.addEventListener('click', () => showModal(w.dataset.unit)));
+$('magi-title').addEventListener('click', () => $('pick-folder').click());
+$('agenda-header').addEventListener('click', () => showWindow('agenda'));
+$('resolution-header').addEventListener('click', () => showWindow('resolution'));
+$('response').addEventListener('click', () => showWindow('resolution'));
+$('modal-close').addEventListener('click', () => { openWindow = null; $('modal').hidden = true; });
+document.querySelectorAll('.wise-man').forEach(w => w.addEventListener('click', () => showWindow(w.dataset.unit)));
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { openWindow = null; $('modal').hidden = true; return; }
+    if (!current || files.length < 2 || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+    const i = files.indexOf(current.file) + (e.key === 'ArrowRight' ? 1 : -1);
+    if (i >= 0 && i < files.length) load(files[i]);
+});
 document.addEventListener('dragover', e => { e.preventDefault(); document.body.classList.add('over'); });
 document.addEventListener('dragleave', () => document.body.classList.remove('over'));
 document.addEventListener('drop', e => { e.preventDefault(); document.body.classList.remove('over'); setFiles(e.dataTransfer.files); });
