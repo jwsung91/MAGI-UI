@@ -12,9 +12,9 @@
     "grade": { "enum": ["normal", "critical"], "description": "Required in deliberation mode" },
     "grade_raised": { "type": "boolean", "description": "Raised to critical by a grade objection" },
     "preset": { "type": "string" },
-    "verdict": { "enum": ["passed", "rejected", "on_hold", "error"], "description": "Required in deliberation mode" },
+    "verdict": { "enum": ["passed", "rejected", "on_hold", "error"], "description": "Required in deliberation mode. on_hold is not written from 1.6.0; it appears only in results of earlier versions" },
     "approve_count": { "type": "integer", "minimum": 0, "maximum": 3 },
-    "debate": { "type": "string", "description": "Debate round record, if one was held" },
+    "debate": { "type": "string", "description": "Debate round record, if one was held. Not written from 1.6.0; it appears only in results of earlier versions" },
     "minority": { "type": "string", "description": "Minority opinion" },
     "framing": { "type": "string", "description": "framing agent / moderator directly" },
     "follow_ups": {
